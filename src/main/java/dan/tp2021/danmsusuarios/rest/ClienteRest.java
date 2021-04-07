@@ -37,40 +37,39 @@ public class ClienteRest {
     public static final List<Cliente> listaClientes = new ArrayList<>();
     private static Integer ID_GEN = 1;
 
-    public ClienteRest(){
-        super();
-
-        //Genero una lista con Clientes aleatorios para probar
-
-        Random ran = new Random();
-        String[] razonesSociales = {"r1", "r2"};
-
-        for(int i = 0; i < 5; i++){
-            int ranint = ran.nextInt();
-            if(ranint < 0) ranint = -ranint;
-
-            Usuario user = new Usuario(
-                    Usuario.getNextId(),
-                    "user"+Integer.toString(ranint),
-                    Integer.toString(ranint),
-                    new TipoUsuario(1, "Cliente")
-            );
-
-            Cliente nuevo = new Cliente(
-                    ID_GEN,
-                    razonesSociales[ranint % 2],
-                    Integer.toString(ranint),
-                    "mail"+Integer.toString(ranint%159)+"@aol.com",
-                    ranint/150.5,
-                    true,
-                    new ArrayList<Obra>(),
-                    user
-            );
-            listaClientes.add(nuevo);
-            ID_GEN++;
-        }
-
-    }
+//    public ClienteRest(){
+//        super();
+//
+//        //Genero una lista con Clientes aleatorios para probar
+//        Random ran = new Random();
+//        String[] razonesSociales = {"r1", "r2"};
+//
+//        for(int i = 0; i < 5; i++){
+//            int ranint = ran.nextInt();
+//            if(ranint < 0) ranint = -ranint;
+//
+//            Usuario user = new Usuario(
+//                    Usuario.getNextId(),
+//                    "user"+Integer.toString(ranint),
+//                    Integer.toString(ranint),
+//                    new TipoUsuario(1, "Cliente")
+//            );
+//
+//            Cliente nuevo = new Cliente(
+//                    ID_GEN,
+//                    razonesSociales[ranint % 2],
+//                    Integer.toString(ranint),
+//                    "mail"+Integer.toString(ranint%159)+"@aol.com",
+//                    ranint/150.5,
+//                    true,
+//                    new ArrayList<Obra>(),
+//                    user
+//            );
+//            listaClientes.add(nuevo);
+//            ID_GEN++;
+//        }
+//
+//    }
 
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "Busca un cliente por id")
@@ -132,10 +131,11 @@ public class ClienteRest {
         .findFirst();
 
         if(indexOpt.isPresent()){
-            Cliente old = listaClientes.get(indexOpt.getAsInt());
-            old.merge(nuevo);
-            listaClientes.set(indexOpt.getAsInt(), old);
-            return ResponseEntity.ok(old);
+//            Cliente old = listaClientes.get(indexOpt.getAsInt());
+//            old.merge(nuevo);
+            nuevo.setId(id);
+            listaClientes.set(indexOpt.getAsInt(), nuevo);
+            return ResponseEntity.ok(nuevo);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -149,6 +149,7 @@ public class ClienteRest {
 
         if(indexOpt.isPresent()){
             listaClientes.remove(indexOpt.getAsInt());
+            //TODO que pasa con las obras de este cliente? Se tiene que eliminar? O quedan "huérfanas"?
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
