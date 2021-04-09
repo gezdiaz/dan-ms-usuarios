@@ -85,7 +85,7 @@ public class ObraRest {
 
 
     @GetMapping()
-    public ResponseEntity<List<Obra>> todos(@RequestParam(required = false, defaultValue = "0") Integer idCliente, @RequestParam(required = false, defaultValue = "0") Integer idTipoObra){
+    public ResponseEntity<List<Obra>> todos(@RequestParam(required = false, defaultValue = "0") Integer idCliente, @RequestParam(required = false, defaultValue = "0") Integer idTipoObra, @RequestParam(required = false, defaultValue = "") String cuitCliente){
 
         List<Obra> resultado = listaObras;
 
@@ -97,6 +97,12 @@ public class ObraRest {
         if(idTipoObra > 0){
             resultado = resultado.stream()
                     .filter(obra -> obra.getTipo().getId().equals(idTipoObra))
+                    .collect(Collectors.toList());
+        }
+
+        if(!cuitCliente.isEmpty()){
+            resultado = resultado.stream()
+                    .filter(obra -> obra.getCliente().getCuit().equals(cuitCliente))
                     .collect(Collectors.toList());
         }
 
