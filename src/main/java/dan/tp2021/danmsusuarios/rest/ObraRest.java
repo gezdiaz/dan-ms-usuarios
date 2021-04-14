@@ -20,12 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dan.tp2021.danmsusuarios.domain.Cliente;
-import dan.tp2021.danmsusuarios.domain.Empleado;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.domain.TipoObra;
-import dan.tp2021.danmsusuarios.domain.TipoUsuario;
-import dan.tp2021.danmsusuarios.domain.Usuario;
-import io.swagger.annotations.Api;
 
 @RestController
 @RequestMapping("/api/obra")
@@ -34,54 +30,54 @@ public class ObraRest {
     public static List<Obra> listaObras = new ArrayList<>();
     private static int ID_GEN = 1;
 
-//    public ObraRest(){
-//        super();
-//
-//        //Genero una lista con Obras aleatorias para probar
-//
-//        Random ran = new Random();
-//
-//        for(int i = 0; i < 20; i++){
-//            int ranint = ran.nextInt();
-//            if(ranint < 0) ranint = -ranint;
-//
-//            Cliente cliente = ClienteRest.listaClientes.get(ranint % ClienteRest.listaClientes.size());
-//            TipoObra tipo = new TipoObra();
-//            switch (ranint % 4){
-//                case 0:
-//                    tipo.setId(1);
-//                    tipo.setDescriocion("Reforma");
-//                    break;
-//                case 1:
-//                    tipo.setId(2);
-//                    tipo.setDescriocion("Casa");
-//                    break;
-//                case 2:
-//                    tipo.setId(3);
-//                    tipo.setDescriocion("Edificio");
-//                    break;
-//                case 3:
-//                    tipo.setId(4);
-//                    tipo.setDescriocion("Vial");
-//                    break;
-//            }
-//
-//            Obra nuevo = new Obra(
-//                    ID_GEN,
-//                    "Descripción"+ranint,
-//                    Float.parseFloat(Double.toString((ranint % 1000) * 1.0)),
-//                    Float.parseFloat(Double.toString((ranint % 1000) * 0.5)),
-//                    "Dirección"+ranint,
-//                    ranint,
-//                    tipo,
-//                    cliente
-//            );
-//            cliente.getObras().add(nuevo);
-//            listaObras.add(nuevo);
-//            ID_GEN++;
-//        }
-//
-//    }
+    public ObraRest(){
+        super();
+
+        //Genero una lista con Obras aleatorias para probar
+
+        Random ran = new Random();
+
+        for(int i = 0; i < 20; i++){
+            int ranint = ran.nextInt();
+            if(ranint < 0) ranint = -ranint;
+
+            Cliente cliente = ClienteRest.listaClientes.get(ranint % ClienteRest.listaClientes.size());
+            TipoObra tipo = new TipoObra();
+            switch (ranint % 4){
+                case 0:
+                    tipo.setId(1);
+                    tipo.setDescriocion("Reforma");
+                    break;
+                case 1:
+                    tipo.setId(2);
+                    tipo.setDescriocion("Casa");
+                    break;
+                case 2:
+                    tipo.setId(3);
+                    tipo.setDescriocion("Edificio");
+                    break;
+                case 3:
+                    tipo.setId(4);
+                    tipo.setDescriocion("Vial");
+                    break;
+            }
+
+            Obra nuevo = new Obra(
+                    ID_GEN,
+                    "Descripción"+ranint,
+                    Float.parseFloat(Double.toString((ranint % 1000) * 1.0)),
+                    Float.parseFloat(Double.toString((ranint % 1000) * 0.5)),
+                    "Dirección"+ranint,
+                    ranint,
+                    tipo,
+                    cliente
+            );
+            cliente.getObras().add(nuevo);
+            listaObras.add(nuevo);
+            ID_GEN++;
+        }
+
+    }
 
 
     @GetMapping()

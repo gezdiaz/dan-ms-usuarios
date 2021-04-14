@@ -19,13 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Empleado;
-import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.domain.TipoUsuario;
 import dan.tp2021.danmsusuarios.domain.Usuario;
-import io.swagger.annotations.Api;
-import io.swagger.models.auth.In;
 
 @RestController
 @RequestMapping("/api/empleado")
@@ -34,35 +30,35 @@ public class EmpleadoRest {
     private static List<Empleado> listaEmpleados = new ArrayList<>();
     private static Integer ID_GEN = 1;
 
-//    public EmpleadoRest(){
-//        super();
-//
-//        //Genero una lista con Empleados aleatorios para probar
-//
-//        Random ran = new Random();
-//
-//        for(int i = 0; i < 5; i++){
-//            int ranint = ran.nextInt();
-//            if(ranint < 0) ranint = -ranint;
-//
-//            Usuario user = new Usuario(
-//                    Usuario.getNextId(),
-//                    "user"+Integer.toString(ranint),
-//                    Integer.toString(ranint),
-//                    new TipoUsuario(2, "Vendedor")
-//            );
-//
-//            Empleado nuevo = new Empleado(
-//                    ID_GEN,
-//                    "mail"+Integer.toString(ranint%159)+"@aol.com",
-//                    user,
-//                    "Nombre-"+ID_GEN
-//            );
-//            listaEmpleados.add(nuevo);
-//            ID_GEN++;
-//        }
-//
-//    }
+    public EmpleadoRest(){
+        super();
+
+        //Genero una lista con Empleados aleatorios para probar
+
+        Random ran = new Random();
+
+        for(int i = 0; i < 5; i++){
+            int ranint = ran.nextInt();
+            if(ranint < 0) ranint = -ranint;
+
+            Usuario user = new Usuario(
+                    Usuario.getNextId(),
+                    "user"+Integer.toString(ranint),
+                    Integer.toString(ranint),
+                    new TipoUsuario(2, "Vendedor")
+            );
+
+            Empleado nuevo = new Empleado(
+                    ID_GEN,
+                    "mail"+Integer.toString(ranint%159)+"@aol.com",
+                    user,
+                    "Nombre-"+ID_GEN
+            );
+            listaEmpleados.add(nuevo);
+            ID_GEN++;
+        }
+
+    }
 
 
     @GetMapping()

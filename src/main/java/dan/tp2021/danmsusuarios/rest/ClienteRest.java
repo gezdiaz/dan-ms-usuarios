@@ -8,7 +8,6 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.catalina.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,39 +36,39 @@ public class ClienteRest {
     public static final List<Cliente> listaClientes = new ArrayList<>();
     private static Integer ID_GEN = 1;
 
-//    public ClienteRest(){
-//        super();
-//
-//        //Genero una lista con Clientes aleatorios para probar
-//        Random ran = new Random();
-//        String[] razonesSociales = {"r1", "r2"};
-//
-//        for(int i = 0; i < 5; i++){
-//            int ranint = ran.nextInt();
-//            if(ranint < 0) ranint = -ranint;
-//
-//            Usuario user = new Usuario(
-//                    Usuario.getNextId(),
-//                    "user"+Integer.toString(ranint),
-//                    Integer.toString(ranint),
-//                    new TipoUsuario(1, "Cliente")
-//            );
-//
-//            Cliente nuevo = new Cliente(
-//                    ID_GEN,
-//                    razonesSociales[ranint % 2],
-//                    Integer.toString(ranint),
-//                    "mail"+Integer.toString(ranint%159)+"@aol.com",
-//                    ranint/150.5,
-//                    true,
-//                    new ArrayList<Obra>(),
-//                    user
-//            );
-//            listaClientes.add(nuevo);
-//            ID_GEN++;
-//        }
-//
-//    }
+    public ClienteRest(){
+        super();
+
+        //Genero una lista con Clientes aleatorios para probar
+        Random ran = new Random();
+        String[] razonesSociales = {"r1", "r2"};
+
+        for(int i = 0; i < 5; i++){
+            int ranint = ran.nextInt();
+            if(ranint < 0) ranint = -ranint;
+
+            Usuario user = new Usuario(
+                    Usuario.getNextId(),
+                    "user"+Integer.toString(ranint),
+                    Integer.toString(ranint),
+                    new TipoUsuario(1, "Cliente")
+            );
+
+            Cliente nuevo = new Cliente(
+                    ID_GEN,
+                    razonesSociales[ranint % 2],
+                    Integer.toString(ranint),
+                    "mail"+Integer.toString(ranint%159)+"@aol.com",
+                    ranint/150.5,
+                    true,
+                    new ArrayList<Obra>(),
+                    user
+            );
+            listaClientes.add(nuevo);
+            ID_GEN++;
+        }
+
+    }
 
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "Busca un cliente por id")
