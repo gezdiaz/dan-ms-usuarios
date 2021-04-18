@@ -34,18 +34,6 @@ pipeline {
                 bat "./mvnw checkstyle:checkstyle pmd:pmd pmd:cpd spotbugs:spotbugs"
             }
         }
-        stage('Reportes') {
-            steps {
-                publishHTML([allowMissing: false,
-                             alwaysLinkToLastBuild: true,
-                             keepAll: true,
-                             reportDir: 'target/site',
-                             reportFiles: 'index.html',
-                             reportName: 'Site'
-                ])
-                step([$class: 'CordellWalkerRecorder'])
-            }
-        }
 
     }
     post {
@@ -53,16 +41,19 @@ pipeline {
             archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
         }
         always{
-            archiveArtifacts artifacts: '**/target/site/**', fingerprint: true
-//            publishHTML([allowMissing: false,
-//                        alwaysLinkToLastBuild: true,
-//                        keepAll: true,
-//                        reportDir: 'target/site',
-//                        reportFiles: 'index.html',
-//                        reportName: 'Site'
-//            ])
+//            archiveArtifacts artifacts: '**/target/site/**', fingerprint: true
+            publishHTML([allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'target/site',
+                        reportFiles: 'index.html',
+                        reportName: 'Site'
+            ])
+
             junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
             jacoco ( execPattern: 'target/jacoco.exec')
+            //Chuck Norris
+            step([$class: 'CordellWalkerRecorder'])
 //            recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
 //            recordIssues enabledForFailure: true, tools: [checkStyle()]
 //            recordIssues enabledForFailure: true, tools: [spotBugs()]
