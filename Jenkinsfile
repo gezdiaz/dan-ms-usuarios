@@ -34,28 +34,41 @@ pipeline {
                 bat "./mvnw checkstyle:checkstyle pmd:pmd pmd:cpd spotbugs:spotbugs"
             }
         }
+        stage('Reportes') {
+            steps {
+                publishHTML([allowMissing: false,
+                             alwaysLinkToLastBuild: true,
+                             keepAll: true,
+                             reportDir: 'target/site',
+                             reportFiles: 'index.html',
+                             reportName: 'Site'
+                ])
+                step([$class: 'CordellWalkerRecorder'])
+            }
+        }
+
     }
     post {
         success{
             archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
         }
-        always{
-            archiveArtifacts artifacts: '**/target/site/**', fingerprint: true
-            publishHTML([allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'target/site',
-                        reportFiles: 'index.html',
-                        reportName: 'Site'
-            ])
-            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
-            jacoco ( execPattern: 'target/jacoco.exec')
-            recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
-            recordIssues enabledForFailure: true, tools: [checkStyle()]
-            recordIssues enabledForFailure: true, tools: [spotBugs()]
-            recordIssues enabledForFailure: true, tools: [cpd(pattern: '**/target/cpd.xml')]
-            recordIssues enabledForFailure: true, tools: [pmdParser(pattern: '**/target/pmd.xml')]
-        }
+//        always{
+//            archiveArtifacts artifacts: '**/target/site/**', fingerprint: true
+//            publishHTML([allowMissing: false,
+//                        alwaysLinkToLastBuild: true,
+//                        keepAll: true,
+//                        reportDir: 'target/site',
+//                        reportFiles: 'index.html',
+//                        reportName: 'Site'
+//            ])
+//            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+//            jacoco ( execPattern: 'target/jacoco.exec')
+//            recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
+//            recordIssues enabledForFailure: true, tools: [checkStyle()]
+//            recordIssues enabledForFailure: true, tools: [spotBugs()]
+//            recordIssues enabledForFailure: true, tools: [cpd(pattern: '**/target/cpd.xml')]
+//            recordIssues enabledForFailure: true, tools: [pmdParser(pattern: '**/target/pmd.xml')]
+//        }
     }
     options {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
