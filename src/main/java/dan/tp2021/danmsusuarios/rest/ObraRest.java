@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -118,7 +119,7 @@ public class ObraRest {
         nuevo.setId(ID_GEN++);
         listaObras.add(nuevo);
         //TODO ver que pasa con el cliente. Hay que crear uno nuevo o verificar que existe el recibido? Se recibe un cliente completo un ID?
-        return ResponseEntity.ok(nuevo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
     @PutMapping("/{id}")
