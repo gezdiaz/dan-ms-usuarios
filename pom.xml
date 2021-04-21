@@ -80,7 +80,15 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
+			<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>findbugs-maven-plugin</artifactId>
+					<version>3.0.5</version>
+					<configuration>
+                    	<excludeFilterFile>${project.basedir}/exclude-findbugs.xml</excludeFilterFile>
+                    	<skip>true</skip>
+                	</configuration>
+			</plugin>
         </plugins>
     </build>
     <reporting>
