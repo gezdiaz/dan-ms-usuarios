@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import dan.tp2021.danmsusuarios.domain.Cliente;
+import io.swagger.models.Response;
 
 @RestController
 @RequestMapping("/api/cliente")
@@ -113,7 +115,7 @@ public class ClienteRest {
     	System.out.println(" crear cliente "+nuevo);
         nuevo.setId(ID_GEN++);
         listaClientes.add(nuevo);
-        return ResponseEntity.ok(nuevo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
     @PutMapping(path = "/{id}")
