@@ -54,7 +54,6 @@ pipeline {
             jacoco ( execPattern: 'target/jacoco.exec')
             //Chuck Norris
             step([$class: 'CordellWalkerRecorder'])
-  prueba-jenkins
             recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
             recordIssues enabledForFailure: true, tools: [checkStyle()]
             recordIssues enabledForFailure: true, tools: [spotBugs()]
