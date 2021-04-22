@@ -17,6 +17,7 @@ public class Cliente {
     private String cuit;
     private String mail;
     private Double maxCuentaOnline;
+    private Double saldoActual;
     private Boolean habilitadoOnline;
     @JsonManagedReference
     private List<Obra> obras;
@@ -74,6 +75,14 @@ public class Cliente {
 
     public void setMaxCuentaOnline(Double maxCuentaOnline) {
         this.maxCuentaOnline = maxCuentaOnline;
+    }
+
+    public Double getSaldoActual() {
+        return saldoActual;
+    }
+
+    public void setSaldoActual(Double saldoActual) {
+        this.saldoActual = saldoActual;
     }
 
     public Boolean getHabilitadoOnline() {
