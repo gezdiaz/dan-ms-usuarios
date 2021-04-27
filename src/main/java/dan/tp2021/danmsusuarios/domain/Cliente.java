@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import org.apache.catalina.User;
 
+import java.util.Date;
 import java.util.List;
 
 public class Cliente {
@@ -18,10 +19,21 @@ public class Cliente {
     private String mail;
     private Double maxCuentaOnline;
     private Double saldoActual;
+    //No hace falta el habilitado, cada vez que se necesite saber la situacion el sistema se comunicaria
+    //con el sistema de BCRA
     private Boolean habilitadoOnline;
     @JsonManagedReference
     private List<Obra> obras;
     private Usuario user;
+    private Date fechaBaja;
+
+    public Date getFechaBaja() {
+        return fechaBaja;
+    }
+
+    public void setFechaBaja(Date fechaBaja) {
+        this.fechaBaja = fechaBaja;
+    }
 
     public Cliente() {
     }

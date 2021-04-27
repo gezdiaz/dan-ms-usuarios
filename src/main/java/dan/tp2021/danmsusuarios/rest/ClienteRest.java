@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import dan.tp2021.danmsusuarios.service.ClienteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,6 +39,9 @@ public class ClienteRest {
     
     public static final List<Cliente> listaClientes = new ArrayList<>();
     private static Integer ID_GEN = 1;
+
+    @Autowired
+    private ClienteService clienteServiceImpl;
 
     public ClienteRest(){
         super();
@@ -113,9 +118,14 @@ public class ClienteRest {
     @PostMapping
     public ResponseEntity<Cliente> crear(@RequestBody Cliente nuevo){
     	System.out.println(" crear cliente "+nuevo);
-        nuevo.setId(ID_GEN++);
-        listaClientes.add(nuevo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+
+    	if(nuevo.getUser().getPassword()!=null && nuevo.getUser().getUser()!=null && nuevo.getObras()!=null && nuevo.getObras().size()>0){
+
+            //nuevo.setId(ID_GEN++);
+            //listaClientes.add(nuevo);
+            return clienteServiceImpl.saveCliente(nuevo);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(nuevo);
     }
 
     @PutMapping(path = "/{id}")
