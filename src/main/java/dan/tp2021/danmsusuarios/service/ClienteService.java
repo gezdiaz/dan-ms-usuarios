@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+
 public interface ClienteService {
     public ResponseEntity<Cliente> saveCliente(Cliente c);
     public ResponseEntity<Cliente> darDeBaja(Integer idCLiente);
