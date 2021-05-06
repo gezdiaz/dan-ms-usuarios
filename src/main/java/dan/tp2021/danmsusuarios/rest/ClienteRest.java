@@ -90,7 +90,7 @@ public class ClienteRest {
 
     @GetMapping
     public ResponseEntity<List<Cliente>> todos(@RequestParam(required = false, name = "razonSocial", defaultValue = "") String razonSocial){
-
+    	
         List<Cliente> resultado = listaClientes;
         //4.a.ii filtrar por razon social con un parametro opcional.
         if(razonSocial.length() > 0) {

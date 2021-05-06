@@ -96,6 +96,8 @@ public class EmpleadoRest {
     @PutMapping(path = "/{id}")
     public ResponseEntity<Empleado> actualizar(@PathVariable(name = "id") Integer id, @RequestBody() Empleado nuevo){
 
+        //TODO probar con la base de datos, porque ahora cambia todos los valores por cada atributo que trae "Empleado nuevo". Incluyendo valores nulos.
+        
         //me fijo si el id existe en la lista de empleados
         OptionalInt indexOpt =   IntStream.range(0, listaEmpleados.size())
                 .filter(i -> listaEmpleados.get(i).getId().equals(id))

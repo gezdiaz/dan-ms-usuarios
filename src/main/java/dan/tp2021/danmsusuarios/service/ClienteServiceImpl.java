@@ -24,6 +24,7 @@ public class ClienteServiceImpl implements ClienteService{
     public ResponseEntity<Cliente> saveCliente(Cliente c) {
         if(bancoServiceImpl.verificarRiesgo(c)){
             clienteRepository.save(c);
+            System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
             return ResponseEntity.ok(c);
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -61,6 +62,7 @@ public class ClienteServiceImpl implements ClienteService{
         Iterator<Cliente> it = clienteRepository.findAll().iterator();
         while (it.hasNext()){
             if(it.next().getFechaBaja()!=null){
+            	System.out.println(it.next().getRazonSocial());
                 result.add(it.next());
             }
         }

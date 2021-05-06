@@ -92,6 +92,7 @@ public class ObraRest {
                     .collect(Collectors.toList());
         }
         if(idTipoObra > 0){
+        	//TODO no es mejor buscar por la descripcion de la obra?
             resultado = resultado.stream()
                     .filter(obra -> obra.getTipo().getId().equals(idTipoObra))
                     .collect(Collectors.toList());
