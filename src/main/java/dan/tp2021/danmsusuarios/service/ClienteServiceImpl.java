@@ -60,12 +60,13 @@ public class ClienteServiceImpl implements ClienteService{
     public ResponseEntity<List<Cliente>> getListaClientes() {
         List<Cliente> result = new ArrayList<>();
         Iterator<Cliente> it = clienteRepository.findAll().iterator();
-        while (it.hasNext()){
+        it.forEachRemaining(result::add);
+        /*while (it.hasNext()){
             if(it.next().getFechaBaja()!=null){
             	System.out.println(it.next().getRazonSocial());
                 result.add(it.next());
             }
-        }
+        }*/
         return ResponseEntity.ok(result);
     }
 }
