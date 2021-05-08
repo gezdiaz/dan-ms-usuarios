@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import dan.tp2021.danmsusuarios.service.ClienteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,11 +40,14 @@ public class ClienteRest {
     public static final List<Cliente> listaClientes = new ArrayList<>();
     private static Integer ID_GEN = 1;
 
+    @Autowired
+    private ClienteService clienteServiceImpl;
+
     public ClienteRest(){
         super();
 
         //Genero una lista con Clientes aleatorios para probar
-        Random ran = new Random();
+        /*Random ran = new Random();
         String[] razonesSociales = {"r1", "r2"};
 
         for(int i = 0; i < 5; i++){
@@ -68,7 +73,7 @@ public class ClienteRest {
             );
             listaClientes.add(nuevo);
             ID_GEN++;
-        }
+        }*/
 
     }
 
@@ -76,7 +81,7 @@ public class ClienteRest {
     @ApiOperation(value = "Busca un cliente por id")
     public ResponseEntity<Cliente> clientePorId(@PathVariable Integer id){
 
-        Optional<Cliente> c =  listaClientes
+        Optional<Cliente> c =  clienteServiceImpl.getListaClientes().getBody()
                 .stream()
                 .filter(unCli -> unCli.getId().equals(id))
                 .findFirst();
@@ -85,12 +90,12 @@ public class ClienteRest {
 
     @GetMapping
     public ResponseEntity<List<Cliente>> todos(@RequestParam(required = false, name = "razonSocial", defaultValue = "") String razonSocial){
-
-        List<Cliente> resultado = listaClientes;
+    	
+        List<Cliente> resultado = clienteServiceImpl.getListaClientes().getBody();
         //4.a.ii filtrar por razon social con un parametro opcional.
         if(razonSocial.length() > 0) {
-            resultado = listaClientes.stream()
-                    .filter(cliente -> cliente.getRazonSocial().equals(razonSocial))
+            resultado = resultado.stream()
+                    .filter(cliente -> cliente.getRazonSocial().contains(razonSocial))
                     .collect(Collectors.toList());
         }
 
@@ -103,7 +108,7 @@ public class ClienteRest {
 
         System.out.println("Parametros recibidos: \ncuit: "+cuit);
 
-        Optional<Cliente> encontrado = listaClientes.stream()
+        Optional<Cliente> encontrado = clienteServiceImpl.getListaClientes().getBody().stream()
                 .filter(cliente -> cliente.getCuit().equals(cuit))
                 .findFirst();
 
@@ -113,9 +118,14 @@ public class ClienteRest {
     @PostMapping
     public ResponseEntity<Cliente> crear(@RequestBody Cliente nuevo){
     	System.out.println(" crear cliente "+nuevo);
-        nuevo.setId(ID_GEN++);
-        listaClientes.add(nuevo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+
+    	if(nuevo.getUser().getPassword()!=null && nuevo.getUser().getUser()!=null && nuevo.getObras()!=null && nuevo.getObras().size()>0){
+
+            //nuevo.setId(ID_GEN++);
+            //listaClientes.add(nuevo);
+            return clienteServiceImpl.saveCliente(nuevo);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(nuevo);
     }
 
     @PutMapping(path = "/{id}")
@@ -127,15 +137,16 @@ public class ClienteRest {
         @ApiResponse(code = 404, message = "El ID no existe")
     })
     public ResponseEntity<Cliente> actualizar(@RequestBody Cliente nuevo,  @PathVariable Integer id){
-        OptionalInt indexOpt =   IntStream.range(0, listaClientes.size())
-        .filter(i -> listaClientes.get(i).getId().equals(id))
+        List<Cliente> listaDeClientes = clienteServiceImpl.getListaClientes().getBody();
+        OptionalInt indexOpt =   IntStream.range(0, listaDeClientes.size())
+        .filter(i -> listaDeClientes.get(i).getId().equals(id))
         .findFirst();
 
         if(indexOpt.isPresent()){
 //            Cliente old = listaClientes.get(indexOpt.getAsInt());
 //            old.merge(nuevo);
             nuevo.setId(id);
-            listaClientes.set(indexOpt.getAsInt(), nuevo);
+            listaDeClientes.set(indexOpt.getAsInt(), nuevo);
             return ResponseEntity.ok(nuevo);
         } else {
             return ResponseEntity.notFound().build();
@@ -144,17 +155,20 @@ public class ClienteRest {
 
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<Cliente> borrar(@PathVariable Integer id){
-        OptionalInt indexOpt =   IntStream.range(0, listaClientes.size())
-        .filter(i -> listaClientes.get(i).getId().equals(id))
+        /*List<Cliente> listaDeClientes = clienteServiceImpl.getListaClientes().getBody();
+        OptionalInt indexOpt =   IntStream.range(0, listaDeClientes.size())
+        .filter(i -> listaDeClientes.get(i).getId().equals(id))
         .findFirst();
 
         if(indexOpt.isPresent()){
-            listaClientes.remove(indexOpt.getAsInt());
+            //listaDeClientes.remove(indexOpt.getAsInt());
+            clienteServiceImpl.darDeBaja()
             //TODO que pasa con las obras de este cliente? Se tiene que eliminar? O quedan "huérfanas"?
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
-        }
+        }*/
+        return clienteServiceImpl.darDeBaja(id);
     }
 
 

@@ -36,7 +36,7 @@ public class ObraRest {
 
         //Genero una lista con Obras aleatorias para probar
 
-        Random ran = new Random();
+        /*Random ran = new Random();
 
         for(int i = 0; i < 20; i++){
             int ranint = ran.nextInt();
@@ -76,7 +76,7 @@ public class ObraRest {
             cliente.getObras().add(nuevo);
             listaObras.add(nuevo);
             ID_GEN++;
-        }
+        }*/
 
     }
 
@@ -92,8 +92,9 @@ public class ObraRest {
                     .collect(Collectors.toList());
         }
         if(idTipoObra > 0){
+        	//TODO no es mejor buscar por la descripcion de la obra?
             resultado = resultado.stream()
-                    .filter(obra -> obra.getTipo().getId().equals(idTipoObra))
+                    .filter(obra -> obra.getTipo().getId().equals(idTipoObra))//TODO puede ser null el tipo de obra
                     .collect(Collectors.toList());
         }
 

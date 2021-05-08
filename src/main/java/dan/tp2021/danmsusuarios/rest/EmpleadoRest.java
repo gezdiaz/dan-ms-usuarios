@@ -28,6 +28,7 @@ import dan.tp2021.danmsusuarios.domain.Usuario;
 @RequestMapping("/api/empleado")
 public class EmpleadoRest {
 
+    //TODO cambiar todo para usar un repo
     private static List<Empleado> listaEmpleados = new ArrayList<>();
     private static Integer ID_GEN = 1;
 
@@ -36,7 +37,7 @@ public class EmpleadoRest {
 
         //Genero una lista con Empleados aleatorios para probar
 
-        Random ran = new Random();
+        /*Random ran = new Random();
 
         for(int i = 0; i < 5; i++){
             int ranint = ran.nextInt();
@@ -57,7 +58,7 @@ public class EmpleadoRest {
             );
             listaEmpleados.add(nuevo);
             ID_GEN++;
-        }
+        }*/
 
     }
 
@@ -88,7 +89,7 @@ public class EmpleadoRest {
 
     @PostMapping()
     public ResponseEntity<Empleado> crear(@RequestBody() Empleado nuevo){
-        nuevo.setId(ID_GEN++);
+        nuevo.setId(ID_GEN++);//TODO no dejar que lo cree si el nombre es null
         listaEmpleados.add(nuevo);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
@@ -96,6 +97,8 @@ public class EmpleadoRest {
     @PutMapping(path = "/{id}")
     public ResponseEntity<Empleado> actualizar(@PathVariable(name = "id") Integer id, @RequestBody() Empleado nuevo){
 
+        //TODO probar con la base de datos, porque ahora cambia todos los valores por cada atributo que trae "Empleado nuevo". Incluyendo valores nulos.
+        
         //me fijo si el id existe en la lista de empleados
         OptionalInt indexOpt =   IntStream.range(0, listaEmpleados.size())
                 .filter(i -> listaEmpleados.get(i).getId().equals(id))
