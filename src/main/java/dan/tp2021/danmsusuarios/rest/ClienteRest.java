@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -22,66 +21,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import dan.tp2021.danmsusuarios.domain.Obra;
-import dan.tp2021.danmsusuarios.domain.TipoUsuario;
-import dan.tp2021.danmsusuarios.domain.Usuario;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import dan.tp2021.danmsusuarios.domain.Cliente;
-import io.swagger.models.Response;
 
 @RestController
 @RequestMapping("/api/cliente")
 @Api(value = "ClienteRest", description = "Permite gestionar los clientes de la empresa")
 public class ClienteRest {
-    
-    public static final List<Cliente> listaClientes = new ArrayList<>();
-    private static Integer ID_GEN = 1;
 
     @Autowired
     private ClienteService clienteServiceImpl;
 
-    public ClienteRest(){
-        super();
-
-        //Genero una lista con Clientes aleatorios para probar
-        /*Random ran = new Random();
-        String[] razonesSociales = {"r1", "r2"};
-
-        for(int i = 0; i < 5; i++){
-            int ranint = ran.nextInt();
-            if(ranint < 0) ranint = -ranint;
-
-            Usuario user = new Usuario(
-                    Usuario.getNextId(),
-                    "user"+Integer.toString(ranint),
-                    Integer.toString(ranint),
-                    new TipoUsuario(1, "Cliente")
-            );
-
-            Cliente nuevo = new Cliente(
-                    ID_GEN,
-                    razonesSociales[ranint % 2],
-                    Integer.toString(ranint),
-                    "mail"+Integer.toString(ranint%159)+"@aol.com",
-                    ranint/150.5,
-                    true,
-                    new ArrayList<Obra>(),
-                    user
-            );
-            listaClientes.add(nuevo);
-            ID_GEN++;
-        }*/
-
-    }
 
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "Busca un cliente por id")
     public ResponseEntity<Cliente> clientePorId(@PathVariable Integer id){
 
-        Optional<Cliente> c =  clienteServiceImpl.getListaClientes().getBody()
+        Optional<Cliente> c =  clienteServiceImpl.getListaClientes()
                 .stream()
                 .filter(unCli -> unCli.getId().equals(id))
                 .findFirst();
@@ -91,7 +50,7 @@ public class ClienteRest {
     @GetMapping
     public ResponseEntity<List<Cliente>> todos(@RequestParam(required = false, name = "razonSocial", defaultValue = "") String razonSocial){
     	
-        List<Cliente> resultado = clienteServiceImpl.getListaClientes().getBody();
+        List<Cliente> resultado = clienteServiceImpl.getListaClientes();
         //4.a.ii filtrar por razon social con un parametro opcional.
         if(razonSocial.length() > 0) {
             resultado = resultado.stream()
@@ -108,7 +67,8 @@ public class ClienteRest {
 
         System.out.println("Parametros recibidos: \ncuit: "+cuit);
 
-        Optional<Cliente> encontrado = clienteServiceImpl.getListaClientes().getBody().stream()
+        Optional<Cliente> encontrado = clienteServiceImpl.getListaClientes()
+                .stream()
                 .filter(cliente -> cliente.getCuit().equals(cuit))
                 .findFirst();
 
@@ -123,9 +83,23 @@ public class ClienteRest {
 
             //nuevo.setId(ID_GEN++);
             //listaClientes.add(nuevo);
-            return clienteServiceImpl.saveCliente(nuevo);
+            try {
+                Cliente guardado = clienteServiceImpl.saveCliente(nuevo);
+                return ResponseEntity.ok(guardado);
+            } catch (ClienteService.ClienteNoHbilitadoException e) {
+                //El cliente no esta habilitado, retorno 400 porque es un error de los datos, no es un error del servidor.TODO ver si puede ser un 403 FORBIDDEN
+                System.out.println("Cliente no habilitado. Mensaje de la excepción: " + e.getMessage());
+                e.printStackTrace();
+                return ResponseEntity.badRequest().build();
+            } catch (ClienteService.ClienteException e) {
+                //500 internal server error, porque es un eror del servidor, también podría ser un 503 (Servicio no disponible) o un 502 (GBad gateway)
+                System.out.println("Error al guardar el cliente. Mensaje de la excepción: " + e.getMessage());
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(nuevo);
+    	//Si los datos recibidos no cumplen las condiciones -> BAD REQUEST, no hay que enviar el cliente porque no es válido.
+        return ResponseEntity.badRequest().build();
     }
 
     @PutMapping(path = "/{id}")
@@ -137,7 +111,7 @@ public class ClienteRest {
         @ApiResponse(code = 404, message = "El ID no existe")
     })
     public ResponseEntity<Cliente> actualizar(@RequestBody Cliente nuevo,  @PathVariable Integer id){
-        List<Cliente> listaDeClientes = clienteServiceImpl.getListaClientes().getBody();
+        List<Cliente> listaDeClientes = clienteServiceImpl.getListaClientes();
         OptionalInt indexOpt =   IntStream.range(0, listaDeClientes.size())
         .filter(i -> listaDeClientes.get(i).getId().equals(id))
         .findFirst();
@@ -145,6 +119,7 @@ public class ClienteRest {
         if(indexOpt.isPresent()){
 //            Cliente old = listaClientes.get(indexOpt.getAsInt());
 //            old.merge(nuevo);
+            //TODO cambiar para usar el service.
             nuevo.setId(id);
             listaDeClientes.set(indexOpt.getAsInt(), nuevo);
             return ResponseEntity.ok(nuevo);
@@ -168,7 +143,20 @@ public class ClienteRest {
         } else {
             return ResponseEntity.notFound().build();
         }*/
-        return clienteServiceImpl.darDeBaja(id);
+        try {
+            Cliente eliminado = clienteServiceImpl.darDeBaja(id);
+            return ResponseEntity.ok(eliminado);
+        } catch (ClienteService.ClienteNotFoundException e) {
+            //El cliente no esta habilitado, retorno 400 porque es un error de los datos, no es un error del servidor.TODO ver si puede ser un 403 FORBIDDEN
+            System.out.println("Error Cliente a eliminar no encontrado. Mensaje de la excepción: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        } catch (ClienteService.ClienteException e) {
+            //500 internal server error, porque es un eror del servidor, también podría ser un 503 (Servicio no disponible) o un 502 (GBad gateway)
+            System.out.println("Error al dar de baja el cliente. Mensaje de la excepción: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 

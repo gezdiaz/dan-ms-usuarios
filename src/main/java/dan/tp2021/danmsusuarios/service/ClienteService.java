@@ -1,14 +1,17 @@
 package dan.tp2021.danmsusuarios.service;
 
 import dan.tp2021.danmsusuarios.domain.Cliente;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 
 public interface ClienteService {
-    public ResponseEntity<Cliente> saveCliente(Cliente c);
-    public ResponseEntity<Cliente> darDeBaja(Integer idCLiente);
-    public ResponseEntity<List<Cliente>> getListaClientes();
+
+    class ClienteException extends Exception { ClienteException(String message){super(message);} }
+    class ClienteNoHbilitadoException extends ClienteException { ClienteNoHbilitadoException(String message){super(message);} }
+    class ClienteNotFoundException extends ClienteException { ClienteNotFoundException(String message){super(message);} }
+
+    Cliente saveCliente(Cliente c) throws ClienteException;
+    Cliente darDeBaja(Integer idCLiente) throws ClienteException;
+    List<Cliente> getListaClientes();
 }
