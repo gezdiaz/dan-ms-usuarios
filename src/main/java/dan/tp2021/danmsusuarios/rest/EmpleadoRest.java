@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,92 +24,81 @@ import org.springframework.web.bind.annotation.RestController;
 import dan.tp2021.danmsusuarios.domain.Empleado;
 import dan.tp2021.danmsusuarios.domain.TipoUsuario;
 import dan.tp2021.danmsusuarios.domain.Usuario;
+import dan.tp2021.danmsusuarios.exceptions.empleado.EmpleadoForbiddenException;
+import dan.tp2021.danmsusuarios.exceptions.empleado.EmpleadoNotFoundException;
+import dan.tp2021.danmsusuarios.service.EmpleadoService;
 
 @RestController
 @RequestMapping("/api/empleado")
 public class EmpleadoRest {
 
-    //TODO cambiar todo para usar un repo
-    private static List<Empleado> listaEmpleados = new ArrayList<>();
-    private static Integer ID_GEN = 1;
+	@Autowired
+	EmpleadoService empleadoServiceImpl;
 
+	@GetMapping()
+	public ResponseEntity<List<Empleado>> todos(
+			@RequestParam(name = "nombre", required = false, defaultValue = "") String nombre) {
 
-    @GetMapping()
-    public ResponseEntity<List<Empleado>> todos(@RequestParam(name = "nombre", required = false, defaultValue = "") String nombre){
+		try {
+			return ResponseEntity.ok(empleadoServiceImpl.getEmpleadosByParams(nombre));
+		} catch (EmpleadoNotFoundException e) {
+			return ResponseEntity.badRequest().build();
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-        List<Empleado> resultado = listaEmpleados;
+	@GetMapping("/{id}")
+	public ResponseEntity<Empleado> empleadoPorId(@PathVariable(name = "id") Integer id) {
 
-        if(nombre.length() > 0){
-            resultado = listaEmpleados.stream()
-                    .filter(empleado -> empleado.getNombre().equals(nombre))
-                    .collect(Collectors.toList());
-        }
+		try {
+			return ResponseEntity.ok(empleadoServiceImpl.getEmpleadoById(id));
+		} catch (EmpleadoNotFoundException e) {
+			return ResponseEntity.badRequest().build();
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-        return ResponseEntity.ok(resultado);
-    }
+	@PostMapping()
+	public ResponseEntity<Empleado> crear(@RequestBody() Empleado nuevo) {
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Empleado> empleadoPorId(@PathVariable(name = "id") Integer id){
+		if (nuevo != null && nuevo.getUser() != null && !nuevo.getEmail().isBlank() && !nuevo.getNombre().isBlank()) {
+			try {
+				return ResponseEntity.ok(empleadoServiceImpl.saveEmpleado(nuevo));
+			} catch (Exception e) {
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+			}
+		}
 
-        Optional<Empleado> res = listaEmpleados.stream()
-                .filter(empleado -> empleado.getId().equals(id))
-                .findFirst();
+		return ResponseEntity.badRequest().build(); // Datos incompletos.
+	}
 
-        return ResponseEntity.of(res);
-    }
+	@PutMapping(path = "/{id}")
+	public ResponseEntity<Empleado> actualizar(@PathVariable(name = "id") Integer id, @RequestBody() Empleado nuevo) {
 
-    @PostMapping()
-    public ResponseEntity<Empleado> crear(@RequestBody() Empleado nuevo){
-        nuevo.setId(ID_GEN++);//TODO no dejar que lo cree si el nombre es null
-        listaEmpleados.add(nuevo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
-    }
+		try {
+			return ResponseEntity.ok(empleadoServiceImpl.actualizarEmpleado(id, nuevo));
+		} catch (EmpleadoNotFoundException e) {
+			return ResponseEntity.badRequest().build(); //No existe empleado con ese id/
+		} catch (EmpleadoForbiddenException e) {
+			return ResponseEntity.badRequest().build(); //Id de la url y de "nuevo" distintos
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-    @PutMapping(path = "/{id}")
-    public ResponseEntity<Empleado> actualizar(@PathVariable(name = "id") Integer id, @RequestBody() Empleado nuevo){
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Empleado> borrar(@PathVariable(name = "id") Integer id) {
+		
+		try {
+			return ResponseEntity.ok(empleadoServiceImpl.deleteEmpleadoById(id));
+		} catch (EmpleadoNotFoundException e) {
+			return ResponseEntity.badRequest().build(); //No existe empleado con ese id/
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 
-        //TODO probar con la base de datos, porque ahora cambia todos los valores por cada atributo que trae "Empleado nuevo". Incluyendo valores nulos.
-        
-        //me fijo si el id existe en la lista de empleados
-        OptionalInt indexOpt =   IntStream.range(0, listaEmpleados.size())
-                .filter(i -> listaEmpleados.get(i).getId().equals(id))
-                .findFirst();
-
-        if(indexOpt.isPresent()){
-            //el id existe
-//            Empleado old = listaEmpleados.get(indexOpt.getAsInt());
-//            //el empleado recibido puede no tener to-do seteado, solo actualizo los parámetros que están seteados.
-            // no hace falta hacer esto, porque
-//            old.merge(nuevo);
-            //no es necesario agregarlo a lo lista, pero lo dejo como recordatorio de que acá habría que guardar el empleado en la DB (o el controller tendría que hacerlo)
-            nuevo.setId(id);
-            listaEmpleados.set(indexOpt.getAsInt(), nuevo);
-            return ResponseEntity.ok(nuevo);
-        }else{
-            // el id no existe
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Empleado> borrar(@PathVariable(name = "id") Integer id){
-        //me fijo si el id exsiste en la lista de empleados
-        OptionalInt indexOpt =   IntStream.range(0, listaEmpleados.size())
-                .filter(i -> listaEmpleados.get(i).getId().equals(id))
-                .findFirst();
-
-        if(indexOpt.isPresent()){
-            //el id existe
-            Empleado old = listaEmpleados.get(indexOpt.getAsInt());
-            listaEmpleados.remove(indexOpt.getAsInt());
-            return ResponseEntity.ok(old);
-        }else{
-            // el id no existe
-            return ResponseEntity.notFound().build();
-        }
-
-    }
-
-
+	}
 
 }
