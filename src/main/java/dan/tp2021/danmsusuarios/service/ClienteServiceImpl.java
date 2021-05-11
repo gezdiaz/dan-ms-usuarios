@@ -24,9 +24,9 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public Cliente saveCliente(Cliente c) throws ClienteException {
 		if (bancoServiceImpl.verificarRiesgo(c)) {
-			clienteRepository.save(c);
-			System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
-			return c;
+			//clienteRepository.save(c);
+			//System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
+			return clienteRepository.save(c);
 		}
 		throw new ClienteNoHbilitadoException("Error. El cliente no cumple con los requisitos de riesgo.");
 	}
