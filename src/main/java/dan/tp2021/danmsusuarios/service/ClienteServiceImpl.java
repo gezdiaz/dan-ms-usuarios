@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
@@ -36,18 +37,25 @@ public class ClienteServiceImpl implements ClienteService {
 		if (c.isPresent()) {
 			List<PedidoDTO> pedidos;
 			WebClient webClient = WebClient.create("http://localhost:9011/api/pedido?idCliente=" + c.get().getId());
-			ResponseEntity<List<PedidoDTO>> response = webClient.get().accept(MediaType.APPLICATION_JSON).retrieve()
-					.toEntityList(PedidoDTO.class).block();
-			if (response != null && response.getStatusCode().equals(HttpStatus.OK)) {
+			
+			try {
+				ResponseEntity<List<PedidoDTO>> response = webClient.get().accept(MediaType.APPLICATION_JSON).retrieve()
+						.toEntityList(PedidoDTO.class).block();
 				pedidos = response.getBody();
-				if (pedidos.size() > 0) {
+				if (response != null && response.getStatusCode().equals(HttpStatus.OK)) {
+					//El cliente posee pedidos
 					c.get().setFechaBaja(new Date());
 					return clienteRepository.save(c.get());
-				} else {
+				}
+			} catch (Exception e) {
+				if(e.getMessage().contains("500")) {
+					// No existen pedidos de este cliente. Ver bien como implementar la excepcion.
 					clienteRepository.delete(c.get());
 					return c.get();
 				}
+				throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
 			}
+
 			// TODO acá podríamos ver que error nos devolvió la API de pedidos y lanzar
 			// distintas excepciones según eso.
 			throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
@@ -78,17 +86,17 @@ public class ClienteServiceImpl implements ClienteService {
 	public List<Cliente> getClientesByParams(String rs) throws ClienteNotFoundException {
 		List<Cliente> resultado = getListaClientes();
 		if (!rs.isBlank()) {
-			resultado.stream().filter(p -> p.getRazonSocial().contains(rs));
+			resultado = resultado.stream().filter(p -> p.getRazonSocial().contains(rs)).collect(Collectors.toList());
 			if (!resultado.isEmpty()) {
 				return resultado;
 			}
 			throw new ClienteNotFoundException("No se encontraron clientes con razon social: " + rs);
-			
+
 		}
-		if(!resultado.isEmpty()) {
+		if (!resultado.isEmpty()) {
 			return resultado;
 		}
-		throw new ClienteNotFoundException("No se encontraron clientes."); 
+		throw new ClienteNotFoundException("No se encontraron clientes.");
 	}
 
 	@Override
@@ -102,14 +110,15 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public Cliente actualizarCliente(Integer id, Cliente c) throws ClienteException {
-		
-		if(c.getId().equals(id)) {
-			if(clienteRepository.existsById(id)) {
-				clienteRepository.save(c); //TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos quedaran vacios/nulos en la BD
+
+		if (c.getId().equals(id)) {
+			if (clienteRepository.existsById(id)) {
+				clienteRepository.save(c); // TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos
+											// quedaran vacios/nulos en la BD
 			}
 			throw new ClienteNotFoundException("No se encontro cliente con id: " + id);
 		}
-		
+
 		throw new ClienteNoHbilitadoException("Los IDs deben coincidir");
 	}
 }

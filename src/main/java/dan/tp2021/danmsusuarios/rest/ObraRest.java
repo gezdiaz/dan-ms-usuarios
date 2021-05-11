@@ -29,11 +29,11 @@ public class ObraRest {
 
 	@GetMapping()
 	public ResponseEntity<List<Obra>> todos(@RequestParam(required = false, defaultValue = "0") Integer idCliente,
-			@RequestParam(required = false, defaultValue = "0") Integer idTipoObra,
+			@RequestParam(required = false, defaultValue = "") String tipoObra,
 			@RequestParam(required = false, defaultValue = "") String cuitCliente) {
 
 		try {
-			return ResponseEntity.ok(obraServiceImpl.getObraByParams(cuitCliente, idCliente, cuitCliente));
+			return ResponseEntity.ok(obraServiceImpl.getObraByParams(tipoObra, idCliente, cuitCliente));
 		} catch (ObraNotFoundException e) {
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {

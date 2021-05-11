@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dan.tp2021.danmsusuarios.dao.ObraRepository;
+import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
+import dan.tp2021.danmsusuarios.service.ClienteService.ClienteNotFoundException;
 
 @Service
 public class ObraServiceImpl implements ObraService {
@@ -19,6 +21,9 @@ public class ObraServiceImpl implements ObraService {
 	@Autowired
 	ObraRepository obraRepository;
 
+	@Autowired
+	ClienteService clienteServiceImpl;
+	
 	@Override
 	public Obra getObraById(Integer id) throws ObraNotFoundException {
 		Optional<Obra> o = obraRepository.findById(id);
@@ -40,13 +45,14 @@ public class ObraServiceImpl implements ObraService {
 
 	@Override
 	public List<Obra> getObraByParams(String tipoObra, Integer idCliente, String cuitCliente)
-			throws ObraNotFoundException {
+			throws ObraNotFoundException, ClienteNotFoundException {
+		
 		List<Obra> resultadoAux = new ArrayList<>();
 		obraRepository.findAll().forEach(o -> resultadoAux.add(o));
 		List<Obra> resultado = resultadoAux;
 		
 		if (idCliente > 0) {
-			resultado = resultado.stream().filter(o -> o.getCliente().getId().equals(idCliente))
+			resultado = resultado.stream().filter(o -> o.getIdCliente().equals(idCliente))
 					.collect(Collectors.toList());
 		}
 		if (!tipoObra.isBlank()) {
@@ -55,15 +61,16 @@ public class ObraServiceImpl implements ObraService {
 		}
 
 		if (!cuitCliente.isBlank()) {
-			resultado = resultado.stream().filter(o -> o.getCliente().getCuit().equals(cuitCliente))
+			Cliente clienteBuscadoByCuit =  clienteServiceImpl.getClienteByCuit(cuitCliente);
+			resultado = resultado.stream().filter(o -> clienteBuscadoByCuit.getId().equals(o.getIdCliente()))
 					.collect(Collectors.toList());
 
 		}
-
+	
 		if (!resultado.isEmpty()) {
 			return resultado;
 		}
-
+		
 		throw new ObraNotFoundException("No se encontraron obras.");
 	}
 
@@ -85,7 +92,7 @@ public class ObraServiceImpl implements ObraService {
 
 		if (obra.getId().equals(id)) {
 			if (obraRepository.existsById(id)) {
-				obraRepository.save(obra); // TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos
+				return obraRepository.save(obra); // TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos
 											// quedaran vacios/nulos en la BD
 			}
 			throw new ObraNotFoundException("No se encontro obra con id: " + id);
