@@ -12,6 +12,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -51,7 +52,7 @@ public class PedidoRestTest {
         String server = "http://localhost:"+puerto+"/api/cliente";
         HttpEntity<Cliente> requestCliente = new HttpEntity<>(unCliente);
         ResponseEntity<String> response = testRestTemplate.exchange(server, HttpMethod.POST,requestCliente,String.class);
-        assertEquals(ResponseEntity.ok().build().getStatusCode(),response.getStatusCode());
+        assertEquals(HttpStatus.OK,response.getStatusCode());
     }
 
     @Test
@@ -60,7 +61,7 @@ public class PedidoRestTest {
         String server = "http://localhost:"+puerto+"/api/cliente";
         HttpEntity<Cliente> requestCliente = new HttpEntity<>(unCliente);
         ResponseEntity<String> response = testRestTemplate.exchange(server, HttpMethod.POST,requestCliente,String.class);
-        assertEquals(ResponseEntity.badRequest().build().getStatusCode(),response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST,response.getStatusCode());
     }
 
     @Test
@@ -69,7 +70,7 @@ public class PedidoRestTest {
         String server = "http://localhost:"+puerto+"/api/cliente";
         HttpEntity<Cliente> requestCliente = new HttpEntity<>(unCliente);
         ResponseEntity<String> response = testRestTemplate.exchange(server, HttpMethod.POST,requestCliente,String.class);
-        assertEquals(ResponseEntity.badRequest().build().getStatusCode(),response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST,response.getStatusCode());
     }
 
     @Test
@@ -78,7 +79,7 @@ public class PedidoRestTest {
         String server = "http://localhost:"+puerto+"/api/cliente";
         HttpEntity<Cliente> requestCliente = new HttpEntity<>(unCliente);
         ResponseEntity<String> response = testRestTemplate.exchange(server, HttpMethod.POST,requestCliente,String.class);
-        assertEquals(ResponseEntity.badRequest().build().getStatusCode(),response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST,response.getStatusCode());
     }
 
 }

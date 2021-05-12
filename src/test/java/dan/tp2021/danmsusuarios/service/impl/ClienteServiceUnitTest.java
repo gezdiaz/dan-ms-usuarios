@@ -2,15 +2,24 @@ package dan.tp2021.danmsusuarios.service.impl;
 
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
+import dan.tp2021.danmsusuarios.dto.PedidoDTO;
 import dan.tp2021.danmsusuarios.service.BancoService;
 import dan.tp2021.danmsusuarios.service.ClienteService;
+import dan.tp2021.danmsusuarios.service.PedidoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +36,9 @@ public class ClienteServiceUnitTest {
 
     @MockBean
     ClienteRepository clienteRepository;
+
+    @MockBean
+    PedidoService pedidoService;
 
     Cliente unCliente;
 
@@ -57,6 +69,42 @@ public class ClienteServiceUnitTest {
         when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
         ClienteService.ClienteNoHbilitadoException exception = assertThrows(ClienteService.ClienteNoHbilitadoException.class, () -> clienteService.saveCliente(unCliente));
         assertEquals("Error. El cliente no cumple con los requisitos de riesgo.",exception.getMessage());
+    }
+
+    @Test
+    void darDeBajaConPedido(){
+        PedidoDTO pedidoDTO = new PedidoDTO();
+        List<PedidoDTO> list = new ArrayList<>();
+        list.add(pedidoDTO);
+        Optional<Cliente> optionalCliente = Optional.of(unCliente);
+        when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(list);
+        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
+
+        try {
+            Cliente clienteConFechaBaja = clienteService.darDeBaja(unCliente.getId());
+            assertNotNull(clienteConFechaBaja.getFechaBaja());
+        }catch (Exception e){
+            fail("Test no cumplido");
+        }
+    }
+
+    @Test
+    void darDeBajaSinPedido(){
+        //PedidoDTO pedidoDTO = new PedidoDTO();
+        List<PedidoDTO> list = new ArrayList<>();
+        //list.add(pedidoDTO);
+        Optional<Cliente> optionalCliente = Optional.of(unCliente);
+        when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(list);
+        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
+
+        try {
+            Cliente clienteConFechaBaja = clienteService.darDeBaja(unCliente.getId());
+            assertNull(clienteConFechaBaja);
+        }catch (Exception e){
+            fail("Test no cumplido");
+        }
     }
 
 }

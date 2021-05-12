@@ -21,6 +21,9 @@ public class ClienteServiceImpl implements ClienteService {
 	@Autowired
 	private ClienteRepository clienteRepository;
 
+	@Autowired
+	private PedidoService pedidoService;
+
 	@Override
 	public Cliente saveCliente(Cliente c) throws ClienteException {
 		if (bancoServiceImpl.verificarRiesgo(c)) {
@@ -32,35 +35,24 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public Cliente darDeBaja(Integer idCLiente) throws ClienteException {
+	public Cliente darDeBaja(Integer idCLiente) throws ClienteException{
 		Optional<Cliente> c = clienteRepository.findById(idCLiente);
 		if (c.isPresent()) {
 			List<PedidoDTO> pedidos;
-			WebClient webClient = WebClient.create("http://localhost:9011/api/pedido?idCliente=" + c.get().getId());
-			
-			try {
-				ResponseEntity<List<PedidoDTO>> response = webClient.get().accept(MediaType.APPLICATION_JSON).retrieve()
-						.toEntityList(PedidoDTO.class).block();
-				pedidos = response.getBody();
-				if (response != null && response.getStatusCode().equals(HttpStatus.OK)) {
-					//El cliente posee pedidos
+			pedidos = pedidoService.getPedidoByClienteId(c.get().getId());
+			if(pedidos!=null){
+				if (!pedidos.isEmpty()) {
 					c.get().setFechaBaja(new Date());
 					return clienteRepository.save(c.get());
-				}
-			} catch (Exception e) {
-				if(e.getMessage().contains("500")) {
-					// No existen pedidos de este cliente. Ver bien como implementar la excepcion.
+				} else {
 					clienteRepository.delete(c.get());
-					return c.get();
+					return null;
 				}
+			}else {
 				throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
 			}
-
-			// TODO acá podríamos ver que error nos devolvió la API de pedidos y lanzar
-			// distintas excepciones según eso.
-			throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
 		}
-		throw new ClienteNotFoundException("");
+		throw new ClienteException("Error al obtener el cliente");
 	}
 
 	@Override
