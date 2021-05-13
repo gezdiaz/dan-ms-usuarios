@@ -3,6 +3,8 @@ package dan.tp2021.danmsusuarios.service.impl;
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
 import dan.tp2021.danmsusuarios.service.BancoService;
 import dan.tp2021.danmsusuarios.service.ClienteService;
 import dan.tp2021.danmsusuarios.service.PedidoService;
@@ -58,7 +60,7 @@ public class ClienteServiceUnitTest {
         try {
             Cliente clienteGuardado = clienteService.saveCliente(unCliente);
             assertEquals("12345678",clienteGuardado.getCuit());
-        } catch (ClienteService.ClienteException e) {
+        } catch (ClienteException e) {
             fail("Test no cumplido");
         }
     }
@@ -67,7 +69,7 @@ public class ClienteServiceUnitTest {
     void testCrearClienteRiesgoBancoMal(){
         when(bancoService.verificarRiesgo(any(Cliente.class))).thenReturn(false);
         when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
-        ClienteService.ClienteNoHbilitadoException exception = assertThrows(ClienteService.ClienteNoHbilitadoException.class, () -> clienteService.saveCliente(unCliente));
+        ClienteNoHabilitadoException exception = assertThrows(ClienteNoHabilitadoException.class, () -> clienteService.saveCliente(unCliente));
         assertEquals("Error. El cliente no cumple con los requisitos de riesgo.",exception.getMessage());
     }
 

@@ -3,6 +3,10 @@ package dan.tp2021.danmsusuarios.service;
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,7 +35,7 @@ public class ClienteServiceImpl implements ClienteService {
 			//System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
 			return clienteRepository.save(c);
 		}
-		throw new ClienteNoHbilitadoException("Error. El cliente no cumple con los requisitos de riesgo.");
+		throw new ClienteNoHabilitadoException("Error. El cliente no cumple con los requisitos de riesgo.");
 	}
 
 	@Override
@@ -46,13 +50,13 @@ public class ClienteServiceImpl implements ClienteService {
 					return clienteRepository.save(c.get());
 				} else {
 					clienteRepository.delete(c.get());
-					return null;
+					return c.get();
 				}
 			}else {
 				throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
 			}
 		}
-		throw new ClienteException("Error al obtener el cliente");
+		throw new ClienteNotFoundException("Error al obtener el cliente");
 	}
 
 	@Override
@@ -111,6 +115,6 @@ public class ClienteServiceImpl implements ClienteService {
 			throw new ClienteNotFoundException("No se encontro cliente con id: " + id);
 		}
 
-		throw new ClienteNoHbilitadoException("Los IDs deben coincidir");
+		throw new ClienteNoHabilitadoException("Los IDs deben coincidir");
 	}
 }
