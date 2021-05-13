@@ -61,11 +61,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public List<Cliente> getListaClientes() {
-		List<Cliente> result = new ArrayList<>();
-		Iterator<Cliente> it = clienteRepository.findAll().iterator();
-		it.forEachRemaining(result::add);
-
-		return result;
+		return  clienteRepository.findAll();
 	}
 
 	@Override
@@ -79,8 +75,8 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public List<Cliente> getClientesByParams(String rs) throws ClienteNotFoundException {
-		List<Cliente> resultado = getListaClientes();
+	public List<Cliente> getClientesByParams(String rs) {
+		/*List<Cliente> resultado = getListaClientes();
 		if (!rs.isBlank()) {
 			resultado = resultado.stream().filter(p -> p.getRazonSocial().contains(rs)).collect(Collectors.toList());
 			if (!resultado.isEmpty()) {
@@ -92,7 +88,12 @@ public class ClienteServiceImpl implements ClienteService {
 		if (!resultado.isEmpty()) {
 			return resultado;
 		}
-		throw new ClienteNotFoundException("No se encontraron clientes.");
+		throw new ClienteNotFoundException("No se encontraron clientes.");*/
+		List<Cliente> resultado = getListaClientes();
+		if (!rs.isBlank()) {
+			resultado = resultado.stream().filter(p -> p.getRazonSocial().contains(rs)).collect(Collectors.toList());
+		}
+		return resultado;
 	}
 
 	@Override

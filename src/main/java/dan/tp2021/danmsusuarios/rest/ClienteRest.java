@@ -52,8 +52,6 @@ public class ClienteRest {
 
 		try {
 			return ResponseEntity.ok(clienteServiceImpl.getClientesByParams(razonSocial));
-		} catch (dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException e) {
-			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}

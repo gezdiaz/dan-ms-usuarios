@@ -5,6 +5,7 @@ import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.domain.Usuario;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.service.BancoServiceImpl;
 import dan.tp2021.danmsusuarios.service.ClienteService;
 import dan.tp2021.danmsusuarios.service.PedidoService;
@@ -191,4 +192,28 @@ public class ClienteRestTest {
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 
 	}
+
+	@Test
+	void getListaClientesOK() {
+		List<Cliente> lista = new ArrayList<>();
+		lista.add(unCliente);
+		when(clienteRepository.findAll()).thenReturn(lista);
+		String server = "http://localhost:" + puerto + "/api/cliente";
+		ResponseEntity<List> response = testRestTemplate.exchange(server, HttpMethod.GET, HttpEntity.EMPTY,
+				List.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(1,response.getBody().size());
+	}
+
+	@Test
+	void getListaClientesError5xx() {
+		List<Cliente> lista = new ArrayList<>();
+		lista.add(unCliente);
+		when(clienteRepository.findAll()).thenThrow(NullPointerException.class);
+		String server = "http://localhost:" + puerto + "/api/cliente";
+		ResponseEntity<List> response = testRestTemplate.exchange(server, HttpMethod.GET, HttpEntity.EMPTY,
+				List.class);
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+	}
+
 }
