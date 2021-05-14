@@ -1,18 +1,22 @@
 package dan.tp2021.danmsusuarios.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import org.apache.catalina.User;
 
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+@Entity
 public class Cliente {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String razonSocial;
     private String cuit;
@@ -23,7 +27,9 @@ public class Cliente {
     //con el sistema de BCRA
     private Boolean habilitadoOnline;
     @JsonManagedReference
+    @OneToMany
     private List<Obra> obras;
+    @OneToOne
     private Usuario user;
     private Date fechaBaja;
 
