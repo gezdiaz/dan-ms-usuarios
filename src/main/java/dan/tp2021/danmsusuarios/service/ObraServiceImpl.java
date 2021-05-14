@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 import dan.tp2021.danmsusuarios.dao.ObraRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
-import dan.tp2021.danmsusuarios.service.ClienteService.ClienteNotFoundException;
 
 @Service
 public class ObraServiceImpl implements ObraService {

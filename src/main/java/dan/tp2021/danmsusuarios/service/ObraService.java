@@ -3,9 +3,9 @@ package dan.tp2021.danmsusuarios.service;
 import java.util.List;
 
 import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
-import dan.tp2021.danmsusuarios.service.ClienteService.ClienteNotFoundException;
 
 public interface ObraService {
 

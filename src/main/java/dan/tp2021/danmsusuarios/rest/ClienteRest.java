@@ -1,17 +1,7 @@
 package dan.tp2021.danmsusuarios.rest;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import dan.tp2021.danmsusuarios.service.ClienteService;
-import dan.tp2021.danmsusuarios.service.ClienteServiceImpl;
-import dan.tp2021.danmsusuarios.service.ClienteService.ClienteException;
-import dan.tp2021.danmsusuarios.service.ClienteService.ClienteNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +20,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import dan.tp2021.danmsusuarios.domain.Cliente;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 
 @RestController
 @RequestMapping("/api/cliente")
@@ -45,7 +38,7 @@ public class ClienteRest {
 
 		try {
 			return ResponseEntity.ok(clienteServiceImpl.getClienteById(id));
-		} catch (ClienteNotFoundException e) {
+		} catch (dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException e) {
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -59,8 +52,6 @@ public class ClienteRest {
 
 		try {
 			return ResponseEntity.ok(clienteServiceImpl.getClientesByParams(razonSocial));
-		} catch (ClienteNotFoundException e) {
-			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
@@ -72,7 +63,7 @@ public class ClienteRest {
 
 		try {
 			return ResponseEntity.ok(clienteServiceImpl.getClienteByCuit(cuit));
-		} catch (ClienteNotFoundException e) {
+		} catch (dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException e) {
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -88,13 +79,13 @@ public class ClienteRest {
 			try {
 				Cliente guardado = clienteServiceImpl.saveCliente(nuevo);
 				return ResponseEntity.ok(guardado);
-			} catch (ClienteService.ClienteNoHbilitadoException e) {
+			} catch (ClienteNoHabilitadoException e) {
 				// El cliente no esta habilitado, retorno 400 porque es un error de los datos,
 				// no es un error del servidor.TODO ver si puede ser un 403 FORBIDDEN
 				System.out.println("Cliente no habilitado. Mensaje de la excepción: " + e.getMessage());
 				e.printStackTrace();
 				return ResponseEntity.badRequest().build();
-			} catch (ClienteService.ClienteException e) {
+			} catch (ClienteException e) {
 				// 500 internal server error, porque es un eror del servidor, también podría ser
 				// un 503 (Servicio no disponible) o un 502 (GBad gateway)
 				System.out.println("Error al guardar el cliente. Mensaje de la excepción: " + e.getMessage());
@@ -116,9 +107,9 @@ public class ClienteRest {
 		
 		try {
 			return ResponseEntity.ok(clienteServiceImpl.actualizarCliente(id, nuevo));
-		} catch (ClienteService.ClienteNotFoundException e) {
+		} catch (ClienteNotFoundException e) {
 			return ResponseEntity.badRequest().build();
-		} catch (ClienteService.ClienteNoHbilitadoException e) {
+		} catch (ClienteNoHabilitadoException e) {
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -132,13 +123,13 @@ public class ClienteRest {
 		try {
 			Cliente eliminado = clienteServiceImpl.darDeBaja(id);
 			return ResponseEntity.ok(eliminado);
-		} catch (ClienteService.ClienteNotFoundException e) {
+		} catch (ClienteNotFoundException e) {
 			// El cliente no esta habilitado, retorno 400 porque es un error de los datos,
 			// no es un error del servidor.TODO ver si puede ser un 403 FORBIDDEN
 			System.out.println("Error Cliente a eliminar no encontrado. Mensaje de la excepción: " + e.getMessage());
 			e.printStackTrace();
 			return ResponseEntity.badRequest().build();
-		} catch (ClienteService.ClienteException e) {
+		} catch (ClienteException e) {
 			// 500 internal server error, porque es un eror del servidor, también podría ser
 			// un 503 (Servicio no disponible) o un 502 (GBad gateway)
 			System.out.println("Error al dar de baja el cliente. Mensaje de la excepción: " + e.getMessage());
