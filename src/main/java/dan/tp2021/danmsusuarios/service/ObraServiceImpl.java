@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import dan.tp2021.danmsusuarios.dao.ObraRepository;
+import dan.tp2021.danmsusuarios.dao.ObraInMemoryRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
@@ -19,14 +19,14 @@ import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
 public class ObraServiceImpl implements ObraService {
 
 	@Autowired
-	ObraRepository obraRepository;
+	ObraInMemoryRepository obraInMemoryRepository;
 
 	@Autowired
 	ClienteService clienteServiceImpl;
 	
 	@Override
 	public Obra getObraById(Integer id) throws ObraNotFoundException {
-		Optional<Obra> o = obraRepository.findById(id);
+		Optional<Obra> o = obraInMemoryRepository.findById(id);
 		if (o.isPresent()) {
 			return o.get();
 		}
@@ -36,7 +36,7 @@ public class ObraServiceImpl implements ObraService {
 	@Override
 	public List<Obra> getListaObras() throws ObraNotFoundException {
 		List<Obra> resultado = new ArrayList<>();
-		obraRepository.findAll().forEach(o -> resultado.add(o));
+		obraInMemoryRepository.findAll().forEach(o -> resultado.add(o));
 		if (!resultado.isEmpty()) {
 			return resultado;
 		}
@@ -48,7 +48,7 @@ public class ObraServiceImpl implements ObraService {
 			throws ObraNotFoundException, ClienteNotFoundException {
 		
 		List<Obra> resultadoAux = new ArrayList<>();
-		obraRepository.findAll().forEach(o -> resultadoAux.add(o));
+		obraInMemoryRepository.findAll().forEach(o -> resultadoAux.add(o));
 		List<Obra> resultado = resultadoAux;
 		
 		if (idCliente > 0) {
@@ -78,21 +78,21 @@ public class ObraServiceImpl implements ObraService {
 	public Obra deleteObraById(Integer id) throws ObraNotFoundException {
 
 		Obra o = getObraById(id);
-		obraRepository.delete(o);
+		obraInMemoryRepository.delete(o);
 		return o;
 	}
 
 	@Override
 	public Obra saveObra(Obra obra) {
-		return obraRepository.save(obra);
+		return obraInMemoryRepository.save(obra);
 	}
 
 	@Override
 	public Obra actualizarObra(Integer id, Obra obra) throws ObraForbiddenException, ObraNotFoundException {
 
 		if (obra.getId().equals(id)) {
-			if (obraRepository.existsById(id)) {
-				return obraRepository.save(obra); // TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos
+			if (obraInMemoryRepository.existsById(id)) {
+				return obraInMemoryRepository.save(obra); // TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos
 											// quedaran vacios/nulos en la BD
 			}
 			throw new ObraNotFoundException("No se encontro obra con id: " + id);

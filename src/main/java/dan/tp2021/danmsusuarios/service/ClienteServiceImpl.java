@@ -1,6 +1,6 @@
 package dan.tp2021.danmsusuarios.service;
 
-import dan.tp2021.danmsusuarios.dao.ClienteRepository;
+import dan.tp2021.danmsusuarios.dao.ClienteInMemoryRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
@@ -8,11 +8,7 @@ import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +19,7 @@ public class ClienteServiceImpl implements ClienteService {
 	private BancoService bancoServiceImpl;
 
 	@Autowired
-	private ClienteRepository clienteRepository;
+	private ClienteInMemoryRepository clienteInMemoryRepository;
 
 	@Autowired
 	private PedidoService pedidoService;
@@ -33,23 +29,23 @@ public class ClienteServiceImpl implements ClienteService {
 		if (bancoServiceImpl.verificarRiesgo(c)) {
 			//clienteRepository.save(c);
 			//System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
-			return clienteRepository.save(c);
+			return clienteInMemoryRepository.save(c);
 		}
 		throw new ClienteNoHabilitadoException("Error. El cliente no cumple con los requisitos de riesgo.");
 	}
 
 	@Override
 	public Cliente darDeBaja(Integer idCLiente) throws ClienteException{
-		Optional<Cliente> c = clienteRepository.findById(idCLiente);
+		Optional<Cliente> c = clienteInMemoryRepository.findById(idCLiente);
 		if (c.isPresent()) {
 			List<PedidoDTO> pedidos;
 			pedidos = pedidoService.getPedidoByClienteId(c.get().getId());
 			if(pedidos!=null){
 				if (!pedidos.isEmpty()) {
 					c.get().setFechaBaja(new Date());
-					return clienteRepository.save(c.get());
+					return clienteInMemoryRepository.save(c.get());
 				} else {
-					clienteRepository.delete(c.get());
+					clienteInMemoryRepository.delete(c.get());
 					return c.get();
 				}
 			}else {
@@ -61,12 +57,12 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public List<Cliente> getListaClientes() {
-		return  clienteRepository.findAll();
+		return  clienteInMemoryRepository.findAll();
 	}
 
 	@Override
 	public Cliente getClienteById(Integer id) throws ClienteNotFoundException {
-		Optional<Cliente> c = clienteRepository.findById(id);
+		Optional<Cliente> c = clienteInMemoryRepository.findById(id);
 		if (c.isPresent()) {
 			return c.get();
 		}
@@ -109,8 +105,8 @@ public class ClienteServiceImpl implements ClienteService {
 	public Cliente actualizarCliente(Integer id, Cliente c) throws ClienteException {
 
 		if (c.getId().equals(id)) {
-			if (clienteRepository.existsById(id)) {
-				clienteRepository.save(c); // TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos
+			if (clienteInMemoryRepository.existsById(id)) {
+				clienteInMemoryRepository.save(c); // TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos
 											// quedaran vacios/nulos en la BD
 			}
 			throw new ClienteNotFoundException("No se encontro cliente con id: " + id);

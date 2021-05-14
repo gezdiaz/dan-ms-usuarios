@@ -1,6 +1,6 @@
 package dan.tp2021.danmsusuarios.service.impl;
 
-import dan.tp2021.danmsusuarios.dao.ClienteRepository;
+import dan.tp2021.danmsusuarios.dao.ClienteInMemoryRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
@@ -9,15 +9,10 @@ import dan.tp2021.danmsusuarios.service.BancoService;
 import dan.tp2021.danmsusuarios.service.ClienteService;
 import dan.tp2021.danmsusuarios.service.PedidoService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +32,7 @@ public class ClienteServiceUnitTest {
     BancoService bancoService;
 
     @MockBean
-    ClienteRepository clienteRepository;
+    ClienteInMemoryRepository clienteInMemoryRepository;
 
     @MockBean
     PedidoService pedidoService;
@@ -56,7 +51,7 @@ public class ClienteServiceUnitTest {
     @Test
     void testCrearClienteRiesgoBancoBien() {
         when(bancoService.verificarRiesgo(any(Cliente.class))).thenReturn(true);
-        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
         try {
             Cliente clienteGuardado = clienteService.saveCliente(unCliente);
             assertEquals("12345678",clienteGuardado.getCuit());
@@ -68,7 +63,7 @@ public class ClienteServiceUnitTest {
     @Test
     void testCrearClienteRiesgoBancoMal(){
         when(bancoService.verificarRiesgo(any(Cliente.class))).thenReturn(false);
-        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
         ClienteNoHabilitadoException exception = assertThrows(ClienteNoHabilitadoException.class, () -> clienteService.saveCliente(unCliente));
         assertEquals("Error. El cliente no cumple con los requisitos de riesgo.",exception.getMessage());
     }
@@ -80,8 +75,8 @@ public class ClienteServiceUnitTest {
         list.add(pedidoDTO);
         Optional<Cliente> optionalCliente = Optional.of(unCliente);
         when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(list);
-        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
-        when(clienteRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
+        when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteInMemoryRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
 
         try {
             Cliente clienteConFechaBaja = clienteService.darDeBaja(unCliente.getId());
@@ -98,12 +93,12 @@ public class ClienteServiceUnitTest {
         //list.add(pedidoDTO);
         Optional<Cliente> optionalCliente = Optional.of(unCliente);
         when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(list);
-        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
-        when(clienteRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
+        when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteInMemoryRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
 
         try {
             Cliente clienteConFechaBaja = clienteService.darDeBaja(unCliente.getId());
-            verify(clienteRepository,times(1)).delete(any(Cliente.class));
+            verify(clienteInMemoryRepository,times(1)).delete(any(Cliente.class));
             //assertNull(clienteConFechaBaja);
         }catch (Exception e){
             fail("Test no cumplido");

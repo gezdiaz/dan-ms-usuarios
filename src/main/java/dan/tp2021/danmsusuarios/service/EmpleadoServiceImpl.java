@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import dan.tp2021.danmsusuarios.dao.EmpleadoRepository;
+import dan.tp2021.danmsusuarios.dao.EmpleadoInMemoryRepository;
 import dan.tp2021.danmsusuarios.domain.Empleado;
 import dan.tp2021.danmsusuarios.exceptions.empleado.EmpleadoForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.empleado.EmpleadoNotFoundException;
@@ -17,7 +17,7 @@ import dan.tp2021.danmsusuarios.exceptions.empleado.EmpleadoNotFoundException;
 public class EmpleadoServiceImpl implements EmpleadoService {
 
 	@Autowired
-	EmpleadoRepository empleadoRepository;
+	EmpleadoInMemoryRepository empleadoInMemoryRepository;
 
 	@Override
 	public List<Empleado> getEmpleadosByParams(String nombre) throws EmpleadoNotFoundException {
@@ -39,13 +39,13 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 	@Override
 	public List<Empleado> getListaEmpleados() {
 		List<Empleado> resultadoAux = new ArrayList<>();
-		empleadoRepository.findAll().forEach(e -> resultadoAux.add(e));
+		empleadoInMemoryRepository.findAll().forEach(e -> resultadoAux.add(e));
 		return resultadoAux;
 	}
 
 	@Override
 	public Empleado getEmpleadoById(Integer id) throws EmpleadoNotFoundException {
-		Optional<Empleado> e = empleadoRepository.findById(id);
+		Optional<Empleado> e = empleadoInMemoryRepository.findById(id);
 		if (e.isPresent()) {
 			return e.get();
 		}
@@ -56,7 +56,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 	public Empleado deleteEmpleadoById(Integer id) throws EmpleadoNotFoundException {
 		Empleado e = getEmpleadoById(id);
 
-		empleadoRepository.delete(e);
+		empleadoInMemoryRepository.delete(e);
 		
 		return e;
 	
@@ -65,8 +65,8 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 	@Override
 	public Empleado actualizarEmpleado(Integer id, Empleado e) throws EmpleadoNotFoundException, EmpleadoForbiddenException {
 		if(id.equals(e.getId())) {
-			if(empleadoRepository.existsById(id)) {
-				return empleadoRepository.save(e);
+			if(empleadoInMemoryRepository.existsById(id)) {
+				return empleadoInMemoryRepository.save(e);
 			}
 			throw new EmpleadoNotFoundException("No se encontro empleado con id: " + id);
 		}
@@ -77,7 +77,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 	@Override
 	public Empleado saveEmpleado(Empleado e) {
 		
-		return empleadoRepository.save(e);
+		return empleadoInMemoryRepository.save(e);
 	
 	}
 
