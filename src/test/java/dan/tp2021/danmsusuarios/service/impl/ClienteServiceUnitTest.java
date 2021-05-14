@@ -25,7 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class ClienteServiceUnitTest {
@@ -103,7 +103,8 @@ public class ClienteServiceUnitTest {
 
         try {
             Cliente clienteConFechaBaja = clienteService.darDeBaja(unCliente.getId());
-            assertNull(clienteConFechaBaja);
+            verify(clienteRepository,times(1)).delete(any(Cliente.class));
+            //assertNull(clienteConFechaBaja);
         }catch (Exception e){
             fail("Test no cumplido");
         }
