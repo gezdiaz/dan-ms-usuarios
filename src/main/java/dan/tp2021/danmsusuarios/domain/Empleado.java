@@ -57,16 +57,4 @@ public class Empleado {
         this.nombre = nombre;
     }
 
-    public void merge(Empleado nuevo){
-
-        if (nuevo != null) {
-            if (nuevo.getEmail() != null) {
-                this.setEmail(nuevo.getEmail());
-            }
-            if(nuevo.getUser() != null){
-                this.setUser(nuevo.getUser());
-            }
-        }
-
-    }
 }

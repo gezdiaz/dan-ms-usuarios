@@ -1,10 +1,14 @@
 package dan.tp2021.danmsusuarios.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,6 +16,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 @Entity
 public class Cliente {
 
@@ -26,18 +33,18 @@ public class Cliente {
     //No hace falta el habilitado, cada vez que se necesite saber la situacion el sistema se comunicaria
     //con el sistema de BCRA
     private Boolean habilitadoOnline;
-    @JsonManagedReference
-    @OneToMany
-    private List<Obra> obras;
-    @OneToOne
-    private Usuario user;
-    private Date fechaBaja;
 
-    public Date getFechaBaja() {
+    @OneToMany(cascade = CascadeType.PERSIST)
+    private List<Obra> obras;
+    @OneToOne(cascade = CascadeType.PERSIST)
+    private Usuario user;
+    private LocalDate fechaBaja;
+
+    public LocalDate getFechaBaja() {
         return fechaBaja;
     }
 
-    public void setFechaBaja(Date fechaBaja) {
+    public void setFechaBaja(LocalDate fechaBaja) {
         this.fechaBaja = fechaBaja;
     }
 
@@ -127,35 +134,4 @@ public class Cliente {
         this.user = user;
     }
 
-    public void merge(Cliente nuevo) {
-
-        if (nuevo != null) {
-
-            if(nuevo.getCuit() != null){
-                this.setCuit(nuevo.getCuit());
-            }
-
-            if(nuevo.getRazonSocial() != null){
-                this.setRazonSocial(nuevo.getRazonSocial());
-            }
-
-            if(nuevo.getHabilitadoOnline() != null){
-                this.setHabilitadoOnline(nuevo.getHabilitadoOnline());
-            }
-
-            if(nuevo.getMail() != null){
-                this.setMail(nuevo.getMail());
-            }
-
-            if(nuevo.getObras() != null){
-                this.setObras(nuevo.getObras());
-            }
-
-            if(nuevo.getMaxCuentaOnline() != null){
-                this.setMaxCuentaOnline(nuevo.getMaxCuentaOnline());
-            }
-
-        }
-
-    }
 }

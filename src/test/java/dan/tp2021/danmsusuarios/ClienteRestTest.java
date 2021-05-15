@@ -1,6 +1,6 @@
 package dan.tp2021.danmsusuarios;
 
-import dan.tp2021.danmsusuarios.dao.ClienteInMemoryRepository;
+import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.domain.Usuario;
@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class ClienteRestTest {
 	PedidoService pedidoService;
 
 	@MockBean
-	ClienteInMemoryRepository clienteInMemoryRepository;
+	ClienteRepository clienteRepository;
 
 	@BeforeEach
 	void setUp() {
@@ -111,9 +112,9 @@ public class ClienteRestTest {
 		// Mock de la comunicacion entre APIs cliente y pedido
 		when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(listaPedido);
 		// Mock de la comunicacion con la base de datos.
-		when(clienteInMemoryRepository.findById(any(Integer.class))).thenReturn(Optional.of(unCliente));
-		when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
-		doNothing().when(clienteInMemoryRepository).delete(any(Cliente.class));
+		when(clienteRepository.findById(any(Integer.class))).thenReturn(Optional.of(unCliente));
+		when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
+		doNothing().when(clienteRepository).delete(any(Cliente.class));
 
 		// Request a cliente REST
 		ResponseEntity<Cliente> response = testRestTemplate.exchange(server, HttpMethod.DELETE, requestCliente,
@@ -133,9 +134,9 @@ public class ClienteRestTest {
 		// Mock de la comunicacion entre APIs cliente y pedido
 		when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(new ArrayList<PedidoDTO>());
 		// Mock de la comunicacion con la base de datos.
-		when(clienteInMemoryRepository.findById(any(Integer.class))).thenReturn(Optional.of(unCliente));
-		when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
-		doNothing().when(clienteInMemoryRepository).delete(any(Cliente.class));
+		when(clienteRepository.findById(any(Integer.class))).thenReturn(Optional.of(unCliente));
+		when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
+		doNothing().when(clienteRepository).delete(any(Cliente.class));
 
 		// Request a cliente REST
 		ResponseEntity<Cliente> response = testRestTemplate.exchange(server, HttpMethod.DELETE, requestCliente,
@@ -156,7 +157,7 @@ public class ClienteRestTest {
 		// Mock de la comunicacion entre APIs cliente y pedido
 		when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(new ArrayList<PedidoDTO>());
 		// Mock de la comunicacion con la base de datos.
-		when(clienteInMemoryRepository.findById(any(Integer.class))).thenReturn(Optional.ofNullable(unCliente));
+		when(clienteRepository.findById(any(Integer.class))).thenReturn(Optional.ofNullable(unCliente));
 
 		// Request a cliente REST
 		ResponseEntity<Cliente> response = testRestTemplate.exchange(server, HttpMethod.DELETE, requestCliente,
@@ -176,7 +177,7 @@ public class ClienteRestTest {
 		// Mock de falla en la comunicacion entre APIs cliente y pedido/
 		when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(null);
 		// Mock de la comunicacion con la base de datos.
-		when(clienteInMemoryRepository.findById(any(Integer.class))).thenReturn(Optional.ofNullable(unCliente));
+		when(clienteRepository.findById(any(Integer.class))).thenReturn(Optional.ofNullable(unCliente));
 
 		// Request a cliente REST
 		ResponseEntity<Cliente> response = testRestTemplate.exchange(server, HttpMethod.DELETE, requestCliente,
@@ -190,7 +191,7 @@ public class ClienteRestTest {
 	void getListaClientesOK() {
 		List<Cliente> lista = new ArrayList<>();
 		lista.add(unCliente);
-		when(clienteInMemoryRepository.findAll()).thenReturn(lista);
+		when(clienteRepository.findByFechaBajaNullOrFechaBaja(any(LocalDate.class))).thenReturn(lista);
 		String server = "http://localhost:" + puerto + "/api/cliente";
 		ResponseEntity<List> response = testRestTemplate.exchange(server, HttpMethod.GET, HttpEntity.EMPTY,
 				List.class);
@@ -202,7 +203,7 @@ public class ClienteRestTest {
 	void getListaClientesError5xx() {
 		List<Cliente> lista = new ArrayList<>();
 		lista.add(unCliente);
-		when(clienteInMemoryRepository.findAll()).thenThrow(NullPointerException.class);
+		when(clienteRepository.findByFechaBajaNullOrFechaBaja(any(LocalDate.class))).thenThrow(NullPointerException.class);
 		String server = "http://localhost:" + puerto + "/api/cliente";
 		ResponseEntity<List> response = testRestTemplate.exchange(server, HttpMethod.GET, HttpEntity.EMPTY,
 				List.class);

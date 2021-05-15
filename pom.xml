@@ -61,6 +61,12 @@
         </dependency>
 
         <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
             <groupId>frsf.isi.dan</groupId>
             <artifactId>memory-repo</artifactId>
             <version>0.0.1</version>

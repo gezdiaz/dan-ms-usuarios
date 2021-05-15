@@ -25,7 +25,7 @@ public class ClienteInMemoryRepository extends InMemoryRepository<Cliente> {
     public List<Cliente> findAll(){
         List<Cliente> resultado = new ArrayList<>();
         super.findAll().forEach(resultado::add);
-        return resultado.stream().filter(cliente -> cliente.getFechaBaja() == null || cliente.getFechaBaja().getTime() == 0).collect(Collectors.toList());
+        return resultado.stream().filter(cliente -> cliente.getFechaBaja() == null || cliente.getFechaBaja().toEpochDay() == 0).collect(Collectors.toList());
     }
 
     @Override

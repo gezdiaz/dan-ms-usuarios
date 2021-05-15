@@ -1,6 +1,6 @@
 package dan.tp2021.danmsusuarios.service.impl;
 
-import dan.tp2021.danmsusuarios.dao.ClienteInMemoryRepository;
+import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
@@ -32,7 +32,7 @@ public class ClienteServiceUnitTest {
     BancoService bancoService;
 
     @MockBean
-    ClienteInMemoryRepository clienteInMemoryRepository;
+    ClienteRepository clienteRepository;
 
     @MockBean
     PedidoService pedidoService;
@@ -51,7 +51,7 @@ public class ClienteServiceUnitTest {
     @Test
     void testCrearClienteRiesgoBancoBien() {
         when(bancoService.verificarRiesgo(any(Cliente.class))).thenReturn(true);
-        when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
         try {
             Cliente clienteGuardado = clienteService.saveCliente(unCliente);
             assertEquals("12345678",clienteGuardado.getCuit());
@@ -63,7 +63,7 @@ public class ClienteServiceUnitTest {
     @Test
     void testCrearClienteRiesgoBancoMal(){
         when(bancoService.verificarRiesgo(any(Cliente.class))).thenReturn(false);
-        when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
         ClienteNoHabilitadoException exception = assertThrows(ClienteNoHabilitadoException.class, () -> clienteService.saveCliente(unCliente));
         assertEquals("Error. El cliente no cumple con los requisitos de riesgo.",exception.getMessage());
     }
@@ -75,8 +75,8 @@ public class ClienteServiceUnitTest {
         list.add(pedidoDTO);
         Optional<Cliente> optionalCliente = Optional.of(unCliente);
         when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(list);
-        when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
-        when(clienteInMemoryRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
+        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
 
         try {
             Cliente clienteConFechaBaja = clienteService.darDeBaja(unCliente.getId());
@@ -93,12 +93,12 @@ public class ClienteServiceUnitTest {
         //list.add(pedidoDTO);
         Optional<Cliente> optionalCliente = Optional.of(unCliente);
         when(pedidoService.getPedidoByClienteId(any(Integer.class))).thenReturn(list);
-        when(clienteInMemoryRepository.save(any(Cliente.class))).thenReturn(unCliente);
-        when(clienteInMemoryRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
+        when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
+        when(clienteRepository.findById(any(Integer.class))).thenReturn(optionalCliente);
 
         try {
             Cliente clienteConFechaBaja = clienteService.darDeBaja(unCliente.getId());
-            verify(clienteInMemoryRepository,times(1)).delete(any(Cliente.class));
+            verify(clienteRepository,times(1)).deleteById(unCliente.getId());
             //assertNull(clienteConFechaBaja);
         }catch (Exception e){
             fail("Test no cumplido");

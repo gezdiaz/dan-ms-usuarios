@@ -52,7 +52,7 @@ public class ObraServiceImpl implements ObraService {
 		List<Obra> resultado = resultadoAux;
 		
 		if (idCliente > 0) {
-			resultado = resultado.stream().filter(o -> o.getIdCliente().equals(idCliente))
+			resultado = resultado.stream().filter(o -> o.getCliente().getId().equals(idCliente))
 					.collect(Collectors.toList());
 		}
 		if (!tipoObra.isBlank()) {
@@ -62,7 +62,7 @@ public class ObraServiceImpl implements ObraService {
 
 		if (!cuitCliente.isBlank()) {
 			Cliente clienteBuscadoByCuit =  clienteServiceImpl.getClienteByCuit(cuitCliente);
-			resultado = resultado.stream().filter(o -> clienteBuscadoByCuit.getId().equals(o.getIdCliente()))
+			resultado = resultado.stream().filter(o -> clienteBuscadoByCuit.getId().equals(o.getCliente().getId()))
 					.collect(Collectors.toList());
 
 		}

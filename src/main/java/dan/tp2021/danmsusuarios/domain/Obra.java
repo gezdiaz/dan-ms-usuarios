@@ -1,6 +1,9 @@
 package dan.tp2021.danmsusuarios.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +11,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 @Entity
 public class Obra {
 
@@ -21,12 +27,8 @@ public class Obra {
     private Integer superficie;
     @ManyToOne
     private TipoObra tipo;
-    @JsonBackReference
     @ManyToOne
     private Cliente cliente;
-    //agrego también el id del cliente para no perder la referencia completamente,
-    // ya que no puedo poner el cliente en json de la obre parque se genera una recursión infinita
-    private Integer idCliente;
 
     public Obra() {
     }
@@ -40,7 +42,6 @@ public class Obra {
         this.superficie = superficie;
         this.tipo = tipo;
         this.cliente = cliente;
-        this.idCliente = cliente.getId();
     }
 
     public Integer getId() {
@@ -105,42 +106,6 @@ public class Obra {
 
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
-        this.idCliente = cliente.getId();
     }
 
-    public Integer getIdCliente() {
-        return idCliente;
-    }
-
-    public void setIdCliente(Integer idCliente) {
-        this.idCliente = idCliente;
-    }
-
-    public void merge(Obra nuevo) {
-
-        if (nuevo != null) {
-            if (nuevo.getCliente() != null) {
-                this.setCliente(nuevo.getCliente());
-            }
-            if (nuevo.getDescripcion() != null) {
-                this.setDescripcion(nuevo.getDescripcion());
-            }
-            if (nuevo.getDireccion() != null) {
-                this.setDireccion(nuevo.getDireccion());
-            }
-            if (nuevo.getLatitud() != null) {
-                this.setLatitud(nuevo.getLatitud());
-            }
-            if (nuevo.getLongitud() != null) {
-                this.setLongitud(nuevo.getLongitud());
-            }
-            if (nuevo.getSuperficie() != null) {
-                this.setSuperficie(nuevo.getSuperficie());
-            }
-            if (nuevo.getTipo() != null) {
-                this.setTipo(nuevo.getTipo());
-            }
-        }
-
-    }
 }
