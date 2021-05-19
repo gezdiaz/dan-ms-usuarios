@@ -2,6 +2,7 @@ package dan.tp2021.danmsusuarios.service.impl;
 
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
+import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
@@ -46,6 +47,10 @@ public class ClienteServiceUnitTest {
         unCliente.setCuit("12345678");
         unCliente.setMail("mail@mail.com");
         unCliente.setRazonSocial("Nombre");
+        //El cliente tiene que tener obras, no se pueden guardar clientes in obras.
+        List<Obra> obras = new ArrayList<>();
+        obras.add(new Obra());
+        unCliente.setObras(obras);
     }
 
     @Test
