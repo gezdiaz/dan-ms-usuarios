@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,16 +19,16 @@ import javax.persistence.ManyToOne;
 public class Obra {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String descripcion;
     private Float latitud;
     private Float longitud;
     private String direccion;
     private Integer superficie;
-    @ManyToOne
+    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE}) //No hay obras sin tipo TODO ver si hacemos que se cree el tipo junto con la obra o aparte, o ambos.
     private TipoObra tipo;
-    @ManyToOne
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST) //El cliente se tiene que crear entes que las obras, no puede haber obras sin cliente
     private Cliente cliente;
 
     public Obra() {
@@ -108,4 +109,17 @@ public class Obra {
         this.cliente = cliente;
     }
 
+    @Override
+    public String toString() {
+        return "Obra{" +
+                "id=" + id +
+                ", descripcion='" + descripcion + '\'' +
+                ", latitud=" + latitud +
+                ", longitud=" + longitud +
+                ", direccion='" + direccion + '\'' +
+                ", superficie=" + superficie +
+                ", tipo=" + tipo +
+                ", cliente=" + (cliente != null ? cliente.getId() : "null") +
+                '}';
+    }
 }

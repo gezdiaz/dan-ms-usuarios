@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface ClienteService {
 
-    public Cliente saveCliente(Cliente c) throws ClienteException;
-    public Cliente darDeBaja(Integer idCLiente) throws ClienteException;
-    public List<Cliente> getListaClientes();
-    public Cliente getClienteById(Integer id) throws ClienteNotFoundException;
-    public List<Cliente> getClientesByParams(String rs) throws ClienteNotFoundException;
-    public Cliente getClienteByCuit(String cuit) throws ClienteNotFoundException;
-    public Cliente actualizarCliente(Integer id, Cliente c) throws ClienteException;
- 
+    Cliente saveCliente(Cliente c) throws ClienteException;
+    Cliente darDeBaja(Integer idCLiente) throws ClienteException;
+    List<Cliente> getListaClientes();
+    Cliente getClienteById(Integer id) throws ClienteNotFoundException;
+    List<Cliente> getClientesByParams(String rs) throws ClienteNotFoundException;
+    Cliente getClienteByCuit(String cuit) throws ClienteNotFoundException;
+    Cliente actualizarCliente(Integer id, Cliente c) throws ClienteException;
+
     
 }

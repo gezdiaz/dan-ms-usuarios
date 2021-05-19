@@ -2,6 +2,7 @@ package dan.tp2021.danmsusuarios.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +15,7 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
     Optional<Cliente> findByCuit(String cuit);
 
-    List<Cliente> findByFechaBajaNullOrFechaBaja(LocalDate fechaBaja);
+    List<Cliente> findByFechaBajaNullOrFechaBaja(Instant fechaBaja);
 
     Optional<Cliente> findByFechaBajaNullAndId(Integer id);
 

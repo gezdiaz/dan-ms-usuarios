@@ -1,11 +1,9 @@
 package dan.tp2021.danmsusuarios.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -23,7 +21,7 @@ import javax.persistence.OneToOne;
 public class Cliente {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String razonSocial;
     private String cuit;
@@ -36,15 +34,15 @@ public class Cliente {
 
     @OneToMany(cascade = CascadeType.PERSIST)
     private List<Obra> obras;
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL)
     private Usuario user;
-    private LocalDate fechaBaja;
+    private Instant fechaBaja;
 
-    public LocalDate getFechaBaja() {
+    public Instant getFechaBaja() {
         return fechaBaja;
     }
 
-    public void setFechaBaja(LocalDate fechaBaja) {
+    public void setFechaBaja(Instant fechaBaja) {
         this.fechaBaja = fechaBaja;
     }
 

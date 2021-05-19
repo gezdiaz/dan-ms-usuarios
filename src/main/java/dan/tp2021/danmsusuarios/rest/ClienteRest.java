@@ -2,6 +2,9 @@ package dan.tp2021.danmsusuarios.rest;
 
 import java.util.List;
 import dan.tp2021.danmsusuarios.service.ClienteService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +32,8 @@ import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 @Api(value = "ClienteRest", description = "Permite gestionar los clientes de la empresa")
 public class ClienteRest {
 
+	private static final Logger logger = LoggerFactory.getLogger(ClienteRest.class);
+
 	@Autowired
 	private ClienteService clienteServiceImpl;
 
@@ -51,8 +56,11 @@ public class ClienteRest {
 			@RequestParam(required = false, name = "razonSocial", defaultValue = "") String razonSocial) {
 
 		try {
-			return ResponseEntity.ok(clienteServiceImpl.getClientesByParams(razonSocial));
+			List<Cliente> resultado = clienteServiceImpl.getClientesByParams(razonSocial);
+			logger.debug("GET /api/cliente respondiendo con lista de clientes: " + resultado);
+			return ResponseEntity.ok(resultado);
 		} catch (Exception e) {
+			logger.error("Se produjo un error al filtrar clientes por razón social " + razonSocial + ": " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}

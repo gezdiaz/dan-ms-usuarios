@@ -3,6 +3,8 @@ package dan.tp2021.danmsusuarios.rest;
 import java.util.List;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
 import dan.tp2021.danmsusuarios.service.ObraService;
@@ -23,6 +26,8 @@ import dan.tp2021.danmsusuarios.service.ObraService;
 @RestController
 @RequestMapping("/api/obra")
 public class ObraRest {
+
+	private static final Logger logger = LoggerFactory.getLogger(ObraRest.class);
 
 	@Autowired
 	ObraService obraServiceImpl;
@@ -63,7 +68,11 @@ public class ObraRest {
 		// el service.
 		try {
 			return ResponseEntity.ok(obraServiceImpl.saveObra(nuevo));
+		} catch (ClienteNotFoundException e){
+			logger.warn("crear(): No se encontró el cliente para asociar con la obra: " + nuevo, e);
+			return ResponseEntity.notFound().build();
 		} catch (Exception e) {
+			logger.error("crear(): Error al crear la obra: " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 
@@ -74,7 +83,7 @@ public class ObraRest {
 		try {
 			return ResponseEntity.ok(obraServiceImpl.actualizarObra(id, nuevo));
 		} catch (ObraNotFoundException e) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.notFound().build();
 		} catch (ObraForbiddenException e) {
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
@@ -92,5 +101,7 @@ public class ObraRest {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
+
+	//TODO crear endpoints para manejar los tipos.
 
 }

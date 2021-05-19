@@ -10,7 +10,7 @@ import javax.persistence.ManyToOne;
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String user;
     private String password;

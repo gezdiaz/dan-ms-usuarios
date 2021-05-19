@@ -9,16 +9,16 @@ import javax.persistence.Id;
 public class TipoObra {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String descriocion;
+    private String descripcion;
 
     public TipoObra() {
     }
 
-    public TipoObra(Integer id, String descriocion) {
+    public TipoObra(Integer id, String descripcion) {
         this.id = id;
-        this.descriocion = descriocion;
+        this.descripcion = descripcion;
     }
 
     public Integer getId() {
@@ -29,11 +29,11 @@ public class TipoObra {
         this.id = id;
     }
 
-    public String getDescriocion() {
-        return descriocion;
+    public String getDescripcion() {
+        return descripcion;
     }
 
-    public void setDescriocion(String descriocion) {
-        this.descriocion = descriocion;
+    public void setDescripcion(String descriocion) {
+        this.descripcion = descriocion;
     }
 }

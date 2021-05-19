@@ -1,8 +1,8 @@
 package dan.tp2021.danmsusuarios.service;
 
-import dan.tp2021.danmsusuarios.dao.ClienteInMemoryRepository;
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
+import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -28,9 +29,6 @@ public class ClienteServiceImpl implements ClienteService {
 	private BancoService bancoServiceImpl;
 
 	@Autowired
-	private ClienteInMemoryRepository clienteInMemoryRepository;
-
-	@Autowired
 	private PedidoService pedidoService;
 
 	@Override
@@ -38,6 +36,12 @@ public class ClienteServiceImpl implements ClienteService {
 		if (bancoServiceImpl.verificarRiesgo(cliente)) {
 			//clienteRepository.save(c);
 			//System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
+
+			for (Obra obra: cliente.getObras() ) {
+				//Le seteo el cliente a todas las obras para guardarlas correctamente.
+				obra.setCliente(cliente);
+			}
+
 			logger.debug("saveCliente(): Guardo el cliente: " + cliente);
 			return clienteRepository.save(cliente);
 		}
@@ -54,7 +58,7 @@ public class ClienteServiceImpl implements ClienteService {
 			if (pedidos != null) {
 				if (!pedidos.isEmpty()) {
 
-					optionalCliente.get().setFechaBaja(LocalDate.now());
+					optionalCliente.get().setFechaBaja(Instant.now());
 					logger.debug("darDeBaja(): El cliente tiene pedidos, por lo tanto se le seta la fecha baja y se guardaÑ: " + optionalCliente.get());
 					return clienteRepository.save(optionalCliente.get());
 				} else {
@@ -73,7 +77,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public List<Cliente> getListaClientes() {
-		return clienteRepository.findByFechaBajaNullOrFechaBaja(LocalDate.EPOCH);
+		return clienteRepository.findByFechaBajaNullOrFechaBaja(Instant.EPOCH);
 	}
 
 	@Override
@@ -88,6 +92,7 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public List<Cliente> getClientesByParams(String razonSocial) {
 		List<Cliente> resultado;
+		logger.debug("getClientesByParams(): buscando cliente por razon social: " + razonSocial);
 		if (!razonSocial.isBlank()) {
 			return clienteRepository.findByRazonSocial(razonSocial);
 		}

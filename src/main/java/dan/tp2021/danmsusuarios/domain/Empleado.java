@@ -1,6 +1,9 @@
 package dan.tp2021.danmsusuarios.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
@@ -8,9 +11,10 @@ import javax.persistence.OneToOne;
 public class Empleado {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String email;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Usuario user;
     //Agregado porque pide buscar por nombre, pero no está en el diagrama.
     private String nombre;

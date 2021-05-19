@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -191,7 +192,7 @@ public class ClienteRestTest {
 	void getListaClientesOK() {
 		List<Cliente> lista = new ArrayList<>();
 		lista.add(unCliente);
-		when(clienteRepository.findByFechaBajaNullOrFechaBaja(any(LocalDate.class))).thenReturn(lista);
+		when(clienteRepository.findByFechaBajaNullOrFechaBaja(any(Instant.class))).thenReturn(lista);
 		String server = "http://localhost:" + puerto + "/api/cliente";
 		ResponseEntity<List> response = testRestTemplate.exchange(server, HttpMethod.GET, HttpEntity.EMPTY,
 				List.class);
@@ -203,7 +204,7 @@ public class ClienteRestTest {
 	void getListaClientesError5xx() {
 		List<Cliente> lista = new ArrayList<>();
 		lista.add(unCliente);
-		when(clienteRepository.findByFechaBajaNullOrFechaBaja(any(LocalDate.class))).thenThrow(NullPointerException.class);
+		when(clienteRepository.findByFechaBajaNullOrFechaBaja(any(Instant.class))).thenThrow(NullPointerException.class);
 		String server = "http://localhost:" + puerto + "/api/cliente";
 		ResponseEntity<List> response = testRestTemplate.exchange(server, HttpMethod.GET, HttpEntity.EMPTY,
 				List.class);
