@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,8 @@ import dan.tp2021.danmsusuarios.service.EmpleadoService;
 @RequestMapping("/api/empleado")
 public class EmpleadoRest {
 
+	private static final Logger logger = LoggerFactory.getLogger(EmpleadoRest.class);
+
 	@Autowired
 	EmpleadoService empleadoServiceImpl;
 
@@ -41,9 +45,8 @@ public class EmpleadoRest {
 
 		try {
 			return ResponseEntity.ok(empleadoServiceImpl.getEmpleadosByParams(nombre));
-		} catch (EmpleadoNotFoundException e) {
-			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
+			logger.error("todos(): Se produjo un error al obtener los empleados", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -54,8 +57,10 @@ public class EmpleadoRest {
 		try {
 			return ResponseEntity.ok(empleadoServiceImpl.getEmpleadoById(id));
 		} catch (EmpleadoNotFoundException e) {
-			return ResponseEntity.badRequest().build();
+			logger.warn("empleadoPorId(): No se encontró el empleado con id: " + id, e);
+			return ResponseEntity.notFound().build();
 		} catch (Exception e) {
+			logger.error("empleadoPorId(): Se produjo un error al obtener el empleado con id: " + id, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -65,12 +70,13 @@ public class EmpleadoRest {
 
 		if (nuevo != null && nuevo.getUser() != null && !nuevo.getEmail().isBlank() && !nuevo.getNombre().isBlank()) {
 			try {
-				return ResponseEntity.ok(empleadoServiceImpl.saveEmpleado(nuevo));
+				return ResponseEntity.status(HttpStatus.CREATED).body(empleadoServiceImpl.saveEmpleado(nuevo));
 			} catch (Exception e) {
+				logger.error("empleadoPorId(): Se produjo un error al crear el empleado.", e);
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 			}
 		}
-
+		logger.warn("crear(): No se puede crear el empleado: " + nuevo);
 		return ResponseEntity.badRequest().build(); // Datos incompletos.
 	}
 
@@ -80,10 +86,13 @@ public class EmpleadoRest {
 		try {
 			return ResponseEntity.ok(empleadoServiceImpl.actualizarEmpleado(id, nuevo));
 		} catch (EmpleadoNotFoundException e) {
-			return ResponseEntity.badRequest().build(); //No existe empleado con ese id/
+			logger.warn("actualizar(): No se encontró el empleado a actualizar.", e);
+			return ResponseEntity.notFound().build(); //No existe empleado con ese id/
 		} catch (EmpleadoForbiddenException e) {
+			logger.warn("actualizar(): El id recibido no coincide con el del empleado.", e);
 			return ResponseEntity.badRequest().build(); //Id de la url y de "nuevo" distintos
 		} catch (Exception e) {
+			logger.error("actualizar(): Se produjo un error al actualizar el empelado.", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -94,8 +103,10 @@ public class EmpleadoRest {
 		try {
 			return ResponseEntity.ok(empleadoServiceImpl.deleteEmpleadoById(id));
 		} catch (EmpleadoNotFoundException e) {
-			return ResponseEntity.badRequest().build(); //No existe empleado con ese id/
+			logger.warn("borrar(): No se encontró el empleado a eliminar.", e);
+			return ResponseEntity.notFound().build(); //No existe empleado con ese id/
 		} catch (Exception e) {
+			logger.error("borrar(): Se produjo un error al eliminar el empelado.", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 

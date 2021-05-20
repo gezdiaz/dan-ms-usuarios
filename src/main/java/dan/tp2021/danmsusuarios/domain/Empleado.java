@@ -61,4 +61,13 @@ public class Empleado {
         this.nombre = nombre;
     }
 
+    @Override
+    public String toString() {
+        return "Empleado{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", user=" + user +
+                ", nombre='" + nombre + '\'' +
+                '}';
+    }
 }
