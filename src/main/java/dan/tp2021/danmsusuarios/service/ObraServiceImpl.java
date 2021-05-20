@@ -9,12 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dan.tp2021.danmsusuarios.dao.ObraRepository;
+import dan.tp2021.danmsusuarios.dao.TipoObraRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.domain.TipoObra;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
+import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 
 @Service
 public class ObraServiceImpl implements ObraService {
@@ -26,6 +29,9 @@ public class ObraServiceImpl implements ObraService {
 
 	@Autowired
 	ClienteService clienteServiceImpl;
+
+	@Autowired
+	TipoObraRepository tipoObraRepository;
 	
 	@Override
 	public Obra getObraById(Integer id) throws ObraNotFoundException {
@@ -64,10 +70,10 @@ public class ObraServiceImpl implements ObraService {
 	}
 
 	@Override
-	public Obra saveObra(Obra obra) throws ObraForbiddenException, ClienteException {
+	public Obra saveObra(Obra obra) throws ObraForbiddenException, ClienteException, TipoNoValidoException {
 
-		if(obra.getCliente() == null){
-			throw new ObraForbiddenException("No se pueden crear obras sin cliente.");
+		if(obra.getCliente() == null || obra.getTipo() == null){
+			throw new ObraForbiddenException("No se pueden crear obras sin cliente o tipo.");
 		}
 
 		Cliente clienteCompleto = clienteServiceImpl.getClienteById(obra.getCliente().getId());
@@ -76,12 +82,60 @@ public class ObraServiceImpl implements ObraService {
 		clienteCompleto.getObras().add(obra);
 		obra.setCliente(clienteCompleto);
 
+		validarTipo(obra);
+
 		logger.debug("saveObra() Guardando obra: " + obra);
 		Obra resultado = obraRepository.save(obra);
 		logger.debug("saveObra() Guardando el cliente con la nueva obra: " + clienteCompleto);
 		clienteServiceImpl.saveCliente(clienteCompleto);
 
 		return resultado;
+	}
+
+	private void validarTipo(Obra obra) throws TipoNoValidoException {
+		TipoObra tipoRecibido = obra.getTipo();
+		boolean tipoValidado = false;
+
+		logger.debug("validarTipo() Se recibió el tipo: " + tipoRecibido);
+
+		if(tipoRecibido.getId() != null && tipoRecibido.getId() > 0){
+			//hay un tipo de obra con el mismo id que el recibido.
+			logger.trace("validarTipo(): El tipo tiene id: " + tipoRecibido.getId());
+			Optional<TipoObra> tipoBD = tipoObraRepository.findById(tipoRecibido.getId());
+			if(tipoBD.isPresent()){
+				//Existe un tipo con este id
+				logger.trace("validarTipo(): El tipo con ese id existe en la base de datos");
+				if(tipoRecibido.getDescripcion() != null && !tipoBD.get().getDescripcion().equals(tipoRecibido.getDescripcion())){
+					//Error los tipos tienen el mismo id pero distintas descripciones, esto no está permitido.
+					logger.debug("validarTipo(): La descripción del tipo en la base de datos no coincide con la descripción recibida. Descripción almacenada: \"" + tipoBD.get().getDescripcion() + "\" descipción recibida: \"" + tipoRecibido.getDescripcion() + "\"");
+					throw new TipoNoValidoException("El tipo de obra recibido tiene un id válido existente con una descripción distinta a la recibida");
+				}
+				//En este punto el tipo está validado y mergeado con la BD, no va a dar detachend entity.
+				logger.debug("validarTipo(): Se recibió un tipo con id válido y se va a setear ese tipo en la obra. El tipo: " + tipoBD.get());
+				obra.setTipo(tipoBD.get());
+				tipoValidado = true;
+			}
+		}
+		if(!tipoValidado){
+			logger.debug("validarTipo(): El tipo no tiene id o tiene un id inexistente.");
+			//No se encontró el tipo por id o no tiene id, si la descripción no es válida es un error, porque hay que crear un nuevo tipo con esa descripción si no existe.
+			if(tipoRecibido.getDescripcion() == null || tipoRecibido.getDescripcion().isBlank()){
+				//Error la descipción no es válida no se puede crear un tipo así.
+				logger.debug("validarTipo(): No se recibió descripción para el tipo sin id.");
+				throw new TipoNoValidoException("Se recibió un tipo sin id o con un id inexistente pero con una descripción inválida.");
+			}
+			logger.trace("validarTipo(): Se recibió la descripción: \"" + tipoRecibido.getDescripcion() + "\". Buscando tipo en la base de datos");
+			Optional<TipoObra> tipoByDescipcion = tipoObraRepository.findByDescripcion(tipoRecibido.getDescripcion());
+			//Ya existe un tipo con esta descripción, se lo seteo a la obra para que no se cree otro.
+			if(tipoByDescipcion.isPresent()){
+				logger.debug("validarTipo(): Se encontró un tipo con la descripción recibida: " + tipoByDescipcion.get());
+				obra.setTipo(tipoByDescipcion.get());
+			} else {
+				//Si el tipo no existe seteo el id en null para asegurar que se cree
+				logger.debug("validarTipo(): No se encontró un tipo con la descripción \"" + tipoRecibido.getDescripcion() + "\". Seteando el id en null para crear el nuevo tipo.");
+				obra.getTipo().setId(null);
+			}
+		}
 	}
 
 	@Override

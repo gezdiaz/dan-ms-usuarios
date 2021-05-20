@@ -21,6 +21,7 @@ import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
+import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 import dan.tp2021.danmsusuarios.service.ObraService;
 
 @RestController
@@ -71,6 +72,9 @@ public class ObraRest {
 		} catch (ClienteNotFoundException e){
 			logger.warn("crear(): No se encontró el cliente para asociar con la obra: " + nuevo, e);
 			return ResponseEntity.notFound().build();
+		} catch (TipoNoValidoException e){
+			logger.warn("Se recibió un tipo de obra inválido en la obra: " + nuevo, e);
+			return ResponseEntity.unprocessableEntity().build();
 		} catch (Exception e) {
 			logger.error("crear(): Error al crear la obra: " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

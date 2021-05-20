@@ -132,4 +132,19 @@ public class Cliente {
         this.user = user;
     }
 
+    @Override
+    public String toString() {
+        return "Cliente{" +
+                "id=" + id +
+                ", razonSocial='" + razonSocial + '\'' +
+                ", cuit='" + cuit + '\'' +
+                ", mail='" + mail + '\'' +
+                ", maxCuentaOnline=" + maxCuentaOnline +
+                ", saldoActual=" + saldoActual +
+                ", habilitadoOnline=" + habilitadoOnline +
+                ", Id obras=" + obras.stream().map(Obra::getId) +
+                ", user=" + user +
+                ", fechaBaja=" + fechaBaja +
+                '}';
+    }
 }

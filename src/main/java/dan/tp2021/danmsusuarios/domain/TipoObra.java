@@ -1,5 +1,6 @@
 package dan.tp2021.danmsusuarios.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,6 +12,7 @@ public class TipoObra {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(unique = true, nullable = false) //No puede haber dos tipos de obras con la misma descripción ni sin descripción, no lo dice el enunciado pero tiene sentido
     private String descripcion;
 
     public TipoObra() {
@@ -35,5 +37,13 @@ public class TipoObra {
 
     public void setDescripcion(String descriocion) {
         this.descripcion = descriocion;
+    }
+
+    @Override
+    public String toString() {
+        return "TipoObra{" +
+                "id=" + id +
+                ", descripcion='" + descripcion + '\'' +
+                '}';
     }
 }
