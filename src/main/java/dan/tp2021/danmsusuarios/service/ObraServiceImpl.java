@@ -65,6 +65,7 @@ public class ObraServiceImpl implements ObraService {
 
 		Obra o = getObraById(id);
 		logger.debug("deleteObraById(): Eliminando la obra: " + o);
+		//TODO primero hay que quitarle la referencia al cliente sino tira error al borrar la obra.
 		obraRepository.deleteById(id);
 		return o;
 	}

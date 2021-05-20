@@ -127,7 +127,7 @@ public class ClienteRest {
 
 	@DeleteMapping(path = "/{id}")
 	public ResponseEntity<Cliente> borrar(@PathVariable Integer id) {
-
+		//TODO ver, bora bien clientes sin pedidos pero tira un error 500 al devolver el JSON
 		try {
 			Cliente eliminado = clienteServiceImpl.darDeBaja(id);
 			return ResponseEntity.ok(eliminado);

@@ -39,6 +39,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 			for (Obra obra: cliente.getObras() ) {
 				//Le seteo el cliente a todas las obras para guardarlas correctamente.
+				//TODO probar guardar la obra aca y quitar el CascadeType.Persist. Porque cuando cuandos e crea un cliente nuevo hay problemas al guardar un TipoObra nuevo.
 				obra.setCliente(cliente);
 			}
 
