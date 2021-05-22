@@ -26,6 +26,7 @@ import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
+import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 
 @RestController
 @RequestMapping("/api/cliente")
@@ -60,7 +61,9 @@ public class ClienteRest {
 			logger.debug("GET /api/cliente respondiendo con lista de clientes: " + resultado);
 			return ResponseEntity.ok(resultado);
 		} catch (Exception e) {
-			logger.error("Se produjo un error al filtrar clientes por razón social " + razonSocial + ": " + e.getMessage(), e);
+			logger.error(
+					"Se produjo un error al filtrar clientes por razón social " + razonSocial + ": " + e.getMessage(),
+					e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -90,13 +93,15 @@ public class ClienteRest {
 			} catch (ClienteNoHabilitadoException e) {
 				// El cliente no esta habilitado, retorno 400 porque es un error de los datos,
 				// no es un error del servidor.TODO ver si puede ser un 403 FORBIDDEN
-				System.out.println("Cliente no habilitado. Mensaje de la excepción: " + e.getMessage());
+				logger.error("Cliente no habilitado. Mensaje de la excepción: " + e.getMessage());
 				e.printStackTrace();
 				return ResponseEntity.badRequest().build();
+			} catch (TipoNoValidoException e) {
+				logger.error("Error al guarddar tipo de obra. Mensjae de error: " + e.getMessage());
 			} catch (ClienteException e) {
 				// 500 internal server error, porque es un eror del servidor, también podría ser
 				// un 503 (Servicio no disponible) o un 502 (GBad gateway)
-				System.out.println("Error al guardar el cliente. Mensaje de la excepción: " + e.getMessage());
+				logger.error("Error al guardar el cliente. Mensaje de la excepción: " + e.getMessage());
 				e.printStackTrace();
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 			}
@@ -112,22 +117,30 @@ public class ClienteRest {
 			@ApiResponse(code = 401, message = "No autorizado"), @ApiResponse(code = 403, message = "Prohibido"),
 			@ApiResponse(code = 404, message = "El ID no existe") })
 	public ResponseEntity<Cliente> actualizar(@RequestBody Cliente nuevo, @PathVariable Integer id) {
-		
+
 		try {
+			logger.info("El cliente entro para set actualizado");
 			return ResponseEntity.ok(clienteServiceImpl.actualizarCliente(id, nuevo));
 		} catch (ClienteNotFoundException e) {
+			logger.error("Cliente no encontrado. Mensaje del error: "+ e.getMessage());
 			return ResponseEntity.badRequest().build();
 		} catch (ClienteNoHabilitadoException e) {
+			logger.error("Cliente No habilitado. Mensaje del error: "+ e.getMessage());
 			return ResponseEntity.badRequest().build();
-		} catch (Exception e) {
+		}catch (TipoNoValidoException e) {
+			logger.error("Error al validar tipos de obras. Mensaje del error: "+ e.getMessage());
+			return ResponseEntity.badRequest().build();
+		} catch (ClienteException e) {
+			logger.error("Error desconocido. Mensaje del error: "+ e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
-		
+		} 
+
 	}
 
 	@DeleteMapping(path = "/{id}")
 	public ResponseEntity<Cliente> borrar(@PathVariable Integer id) {
-		//TODO ver, bora bien clientes sin pedidos pero tira un error 500 al devolver el JSON
+		// TODO ver, bora bien clientes sin pedidos pero tira un error 500 al devolver
+		// el JSON
 		try {
 			Cliente eliminado = clienteServiceImpl.darDeBaja(id);
 			return ResponseEntity.ok(eliminado);

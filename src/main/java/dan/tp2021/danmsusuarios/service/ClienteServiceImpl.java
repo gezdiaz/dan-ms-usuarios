@@ -1,12 +1,14 @@
 package dan.tp2021.danmsusuarios.service;
 
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
+import dan.tp2021.danmsusuarios.dao.TipoObraRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
+import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,21 +28,38 @@ public class ClienteServiceImpl implements ClienteService {
 	private ClienteRepository clienteRepository;
 
 	@Autowired
+	private ObraService obraService;
+
+	@Autowired
 	private BancoService bancoServiceImpl;
+	
+	@Autowired TipoObraRepository tipoObraRepository;
 
 	@Autowired
 	private PedidoService pedidoService;
 
 	@Override
-	public Cliente saveCliente(Cliente cliente) throws ClienteException {
+	public Cliente saveCliente(Cliente cliente) throws ClienteException, TipoNoValidoException {
 		if (bancoServiceImpl.verificarRiesgo(cliente)) {
-			//clienteRepository.save(c);
-			//System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
-
-			for (Obra obra: cliente.getObras() ) {
-				//Le seteo el cliente a todas las obras para guardarlas correctamente.
-				//TODO probar guardar la obra aca y quitar el CascadeType.Persist. Porque cuando cuandos e crea un cliente nuevo hay problemas al guardar un TipoObra nuevo.
+			// clienteRepository.save(c);
+			// System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
+			logger.debug("Cantidad de obras saveCleinte(): " + cliente.getObras().size());
+			for (Obra obra: cliente.getObras()) {
+				// Le seteo el cliente a todas las obras para guardarlas correctamente.
+				// TODO probar guardar la obra aca y quitar el CascadeType.Persist. Porque
+				// cuando cuandos e crea un cliente nuevo hay problemas al guardar un TipoObra
+				// nuevo.
 				obra.setCliente(cliente);
+
+				obraService.validarTipo(obra);
+				
+				if(obra.getTipo().getId() == null) {
+					//Si luego de validar el tipo de obra, el mismo sigue siendo null, es porque hay que crear uno nuevo.
+					//Si no lo creamos aca, el cascade del saveCliente va a crear un nuevo tipo de obra por cada obra, con distintos IDs pero tal vez mismas descripciones, 
+					//y si se repiten las descripciones falla porque deben ser unicas.
+					obraService.saveTipoObra(obra.getTipo());
+				}
+
 			}
 
 			logger.debug("saveCliente(): Guardo el cliente: " + cliente);
@@ -60,15 +79,19 @@ public class ClienteServiceImpl implements ClienteService {
 				if (!pedidos.isEmpty()) {
 
 					optionalCliente.get().setFechaBaja(Instant.now());
-					logger.debug("darDeBaja(): El cliente tiene pedidos, por lo tanto se le seta la fecha baja y se guardaÑ: " + optionalCliente.get());
+					logger.debug(
+							"darDeBaja(): El cliente tiene pedidos, por lo tanto se le seta la fecha baja y se guardaÑ: "
+									+ optionalCliente.get());
 					return clienteRepository.save(optionalCliente.get());
 				} else {
 					clienteRepository.deleteById(optionalCliente.get().getId());
-					logger.debug("darDeBaja(): El cliente no tiene pedidos por lo que se eliminó: " + optionalCliente.get());
+					logger.debug(
+							"darDeBaja(): El cliente no tiene pedidos por lo que se eliminó: " + optionalCliente.get());
 					return optionalCliente.get();
 				}
 			} else {
-				logger.warn("darDeBaja(): Ocurrió un error al obtener los pedidos del cliente: " + optionalCliente.get());
+				logger.warn(
+						"darDeBaja(): Ocurrió un error al obtener los pedidos del cliente: " + optionalCliente.get());
 				throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
 			}
 		}
@@ -111,12 +134,14 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public Cliente actualizarCliente(Integer id, Cliente cliente) throws ClienteException {
-		// TODO REVISAR, ver si recibimos un id o no, en los otros micorservicios no recibimos un id. Hay que ponernos de acuerdo.
+	public Cliente actualizarCliente(Integer id, Cliente cliente) throws ClienteException, TipoNoValidoException {
+		// TODO REVISAR, ver si recibimos un id o no, en los otros micorservicios no
+		// recibimos un id. Hay que ponernos de acuerdo.
 
 		if (cliente.getId().equals(id)) {
 			if (clienteRepository.existsById(id)) {
-				return clienteRepository.save(cliente); // TODO ojo porque sobrescribe el objeto completo, los atributos vacíos/nulos quedaran vacíos/nulos en la BD
+				return this.saveCliente(cliente); // TODO ojo porque sobrescribe el objeto completo, los atributos
+														// vacíos/nulos quedaran vacíos/nulos en la BD
 			}
 			throw new ClienteNotFoundException("No se encontro cliente con id: " + id);
 		}

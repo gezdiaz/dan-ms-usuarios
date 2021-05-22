@@ -14,7 +14,6 @@ import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.domain.TipoObra;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
-import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
@@ -66,6 +65,8 @@ public class ObraServiceImpl implements ObraService {
 		Obra o = getObraById(id);
 		logger.debug("deleteObraById(): Eliminando la obra: " + o);
 		//TODO primero hay que quitarle la referencia al cliente sino tira error al borrar la obra.
+		o.getCliente().getObras().remove(o);
+//		o.setCliente(null);	
 		obraRepository.deleteById(id);
 		return o;
 	}
@@ -93,7 +94,8 @@ public class ObraServiceImpl implements ObraService {
 		return resultado;
 	}
 
-	private void validarTipo(Obra obra) throws TipoNoValidoException {
+	@Override
+	public void validarTipo(Obra obra) throws TipoNoValidoException {
 		TipoObra tipoRecibido = obra.getTipo();
 		boolean tipoValidado = false;
 
@@ -153,6 +155,13 @@ public class ObraServiceImpl implements ObraService {
 		logger.debug("actualizarObra(): Los ids no coinciden. id recibido: '" + id + "' id en la obra: '" + obra.getId() + "'");
 		throw new ObraForbiddenException("Los IDs deben coincidir");
 
+	}
+
+	@Override
+	public void saveTipoObra(TipoObra tipo) {
+
+		tipoObraRepository.save(tipo);
+		
 	}
 
 }
