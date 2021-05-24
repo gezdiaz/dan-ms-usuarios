@@ -131,14 +131,13 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public Cliente actualizarCliente(Integer id, Cliente cliente) throws ClienteException, TipoNoValidoException {
-		// TODO REVISAR, ver si recibimos un id o no, en los otros micorservicios no
-		//  recibimos un id. Hay que ponernos de acuerdo.
+		// TODO REVISAR, ver si recibimos un id o no, en los otros micorservicios no recibimos un id. Hay que ponernos de acuerdo.
 
 		if (cliente.getId().equals(id)) {
 			if (clienteRepository.existsById(id)) {
 				return this.saveCliente(cliente); // TODO ojo porque sobrescribe el objeto completo, los atributos vacíos/nulos quedaran vacíos/nulos en la BD
 			}
-			throw new ClienteNotFoundException("No se encontro cliente con id: " + id);
+			throw new ClienteNotFoundException("No se encontró cliente con id: " + id);
 		}
 
 		throw new ClienteNoHabilitadoException("Los IDs deben coincidir");

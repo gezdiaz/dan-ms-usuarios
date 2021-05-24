@@ -14,6 +14,7 @@ import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.domain.TipoObra;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
+import dan.tp2021.danmsusuarios.exceptions.obra.ObraException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
@@ -27,7 +28,7 @@ public class ObraServiceImpl implements ObraService {
 	ObraRepository obraRepository;
 
 	@Autowired
-	ClienteService clienteServiceImpl;
+	ClienteService clienteService;
 
 	@Autowired
 	TipoObraRepository tipoObraRepository;
@@ -65,7 +66,7 @@ public class ObraServiceImpl implements ObraService {
 		Obra o = getObraById(id);
 		//elimino la obra del cliente primero, para romper la relación y poder eliminar la obra, sino sa error.
 		o.getCliente().getObras().remove(o);
-		clienteServiceImpl.saveCliente(o.getCliente());
+		clienteService.saveCliente(o.getCliente());
 		logger.debug("deleteObraById(): Eliminando la obra: " + o);
 		//TODO primero hay que quitarle la referencia al cliente sino tira error al borrar la obra.
 		o.getCliente().getObras().remove(o);
@@ -81,7 +82,7 @@ public class ObraServiceImpl implements ObraService {
 			throw new ObraForbiddenException("No se pueden crear obras sin cliente o tipo.");
 		}
 
-		Cliente clienteCompleto = clienteServiceImpl.getClienteById(obra.getCliente().getId());
+		Cliente clienteCompleto = clienteService.getClienteById(obra.getCliente().getId());
 		//setear esta obra en el cliente
 		logger.debug("saveObra(): Añadiendo la obra con id " + obra + " al cliente con id " + obra.getCliente().getId());
 		clienteCompleto.getObras().add(obra);
@@ -92,7 +93,7 @@ public class ObraServiceImpl implements ObraService {
 		logger.debug("saveObra() Guardando obra: " + obra);
 		Obra resultado = obraRepository.save(obra);
 		logger.debug("saveObra() Guardando el cliente con la nueva obra: " + clienteCompleto);
-		clienteServiceImpl.saveCliente(clienteCompleto);
+		clienteService.saveCliente(clienteCompleto);
 
 		return resultado;
 	}
@@ -145,12 +146,17 @@ public class ObraServiceImpl implements ObraService {
 	}
 
 	@Override
-	public Obra actualizarObra(Integer id, Obra obra) throws ObraForbiddenException, ObraNotFoundException, TipoNoValidoException {
+	public Obra actualizarObra(Integer id, Obra obra) throws ObraException, TipoNoValidoException, ClienteException {
 
 		if (obra.getId().equals(id)) {
-			if (obraRepository.existsById(id)) {
+			Optional<Obra> optionalObra = obraRepository.findById(id);
+			if (optionalObra.isPresent()) {
 				logger.debug("actualizarObra(): Actualizando obra: " + obra);
 				validarTipo(obra);
+				if(!optionalObra.get().getCliente().getId().equals(obra.getCliente().getId())){
+					//El cliente en la obra recibida no coincide con el cliente en la base de datos, error!
+					throw new ClienteException("Se intentó actualizar el cliente de una obra, eso no está permitido");
+				}
 				return obraRepository.save(obra); // TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos quedaran vacios/nulos en la BD
 			}
 			logger.debug("actualizarObra(): No se encontró la obra con id: " + id);

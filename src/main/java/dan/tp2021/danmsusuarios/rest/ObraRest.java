@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
@@ -99,6 +100,10 @@ public class ObraRest {
 		} catch (TipoNoValidoException e){
 			logger.warn("actualizar(): El tipo de obra recibido no es válido", e);
 			return ResponseEntity.unprocessableEntity().build();
+		} catch (ClienteException e){
+			//Esto quiere decir que se quiso actualizar el cliente en una obra, lo cual está prohibido.
+			logger.warn("actualizar(): Se intentó actualizar el cliente en la obra con id " + id, e);
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		} catch (Exception e) {
 			logger.error("actualizar(): Error al actualizar la obra: " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
