@@ -3,8 +3,10 @@ package dan.tp2021.danmsusuarios;
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.domain.TipoObra;
 import dan.tp2021.danmsusuarios.domain.Usuario;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
+import dan.tp2021.danmsusuarios.service.ObraService;
 import dan.tp2021.danmsusuarios.service.PedidoService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +46,9 @@ public class ClienteRestTest {
 	@MockBean
 	ClienteRepository clienteRepository;
 
+	@MockBean
+	ObraService obraService;
+
 	@BeforeEach
 	void setUp() {
 		unCliente = new Cliente();
@@ -56,6 +61,8 @@ public class ClienteRestTest {
 		unUsuario.setUser("Usuario de prueba 1");
 		unCliente.setUser(unUsuario);
 		Obra unaObra = new Obra();
+		unaObra.setId(1);
+		unaObra.setTipo(new TipoObra(1, "Tipo Falso"));
 		List<Obra> listaObras = new ArrayList<>();
 		listaObras.add(unaObra);
 		unCliente.setObras(listaObras);
