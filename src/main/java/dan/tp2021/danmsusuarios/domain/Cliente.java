@@ -33,7 +33,7 @@ public class Cliente {
     //con el sistema de BCRA
     private Boolean habilitadoOnline;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Obra> obras;
     @OneToOne(cascade = CascadeType.ALL)
     private Usuario user;

@@ -16,7 +16,7 @@ public interface ClienteService {
     Cliente getClienteById(Integer id) throws ClienteNotFoundException;
     List<Cliente> getClientesByParams(String rs) throws ClienteNotFoundException;
     Cliente getClienteByCuit(String cuit) throws ClienteNotFoundException;
-    Cliente actualizarCliente(Integer id, Cliente c) throws ClienteException;
+    Cliente actualizarCliente(Integer id, Cliente c) throws ClienteException, TipoNoValidoException;
 
     
 }

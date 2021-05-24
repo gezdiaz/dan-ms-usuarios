@@ -3,6 +3,7 @@ package dan.tp2021.danmsusuarios.service;
 import java.util.List;
 
 import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.domain.TipoObra;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
@@ -16,5 +17,8 @@ public interface ObraService {
 	Obra deleteObraById(Integer id) throws ObraNotFoundException, TipoNoValidoException, ClienteException;
 	Obra saveObra(Obra obra) throws ObraForbiddenException, ClienteException, TipoNoValidoException;
 	Obra actualizarObra(Integer id, Obra obra) throws ObraForbiddenException, ObraNotFoundException, TipoNoValidoException;
+
+	//TODO Ver si no conviene generar un TipoObraService
 	void validarTipo(Obra obra) throws TipoNoValidoException;
+	void saveTipoObra(TipoObra tipo);
 }

@@ -26,6 +26,7 @@ import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
+import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 
 @RestController
 @RequestMapping("/api/cliente")
@@ -96,6 +97,9 @@ public class ClienteRest {
 				// no es un error del servidor.TODO ver si puede ser un 403 FORBIDDEN
 				logger.warn("Cliente no habilitado. Mensaje de la excepción: " + e.getMessage(), e);
 				return ResponseEntity.badRequest().build();
+			} catch (TipoNoValidoException e) {
+				logger.warn("Error al guardar tipo de obra: " + e.getMessage(), e);
+				return ResponseEntity.unprocessableEntity().build();
 			} catch (Exception e) {
 				// 500 internal server error, porque es un eror del servidor, también podría ser
 				// un 503 (Servicio no disponible) o un 502 (GBad gateway)
@@ -124,6 +128,9 @@ public class ClienteRest {
 		} catch (ClienteNoHabilitadoException e) {
 			logger.warn("actualizar(): El id recibido en el path no coincide con el recibido en el body: path " + id + " body: " + nuevo, e);
 			return ResponseEntity.badRequest().build();
+		} catch (TipoNoValidoException e) {
+			logger.warn("actualizar(): Error al validar tipos de obra: "+ e.getMessage());
+			return ResponseEntity.unprocessableEntity().build();
 		} catch (Exception e) {
 			logger.error("actualizar(): Ocurrió un error al actualizar el cliente: " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -133,7 +140,8 @@ public class ClienteRest {
 
 	@DeleteMapping(path = "/{id}")
 	public ResponseEntity<Cliente> borrar(@PathVariable Integer id) {
-
+		// TODO ver, borra bien clientes sin pedidos pero tira un error 500 al devolver
+		//  el JSON
 		try {
 			Cliente eliminado = clienteServiceImpl.darDeBaja(id);
 			return ResponseEntity.ok(eliminado);

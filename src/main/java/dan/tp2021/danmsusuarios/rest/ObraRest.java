@@ -41,8 +41,10 @@ public class ObraRest {
 		try {
 			return ResponseEntity.ok(obraServiceImpl.getObraByParams(tipoObra, idCliente, cuitCliente));
 		} catch (ObraNotFoundException e) {
+			logger.error("Obra no encontrada. Mensaje de error: " + e.getMessage());
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
+			logger.error("Error desconocido. Mensaje de error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -52,8 +54,10 @@ public class ObraRest {
 		try {
 			return ResponseEntity.ok(obraServiceImpl.getObraById(id));
 		} catch (ObraNotFoundException e) {
+			logger.error("Obra no encontrada. Mensaje de error: " + e.getMessage());
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
+			logger.error("Error desconocido. Mensaje de error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 
@@ -106,8 +110,10 @@ public class ObraRest {
 		try {
 			return ResponseEntity.ok(obraServiceImpl.deleteObraById(id));
 		} catch (ObraNotFoundException e) {
+			logger.error("Obra no encontrada. Mensaje de error: " + e.getMessage());
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
+			logger.error("Error desconocido. Mensaje de error: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}

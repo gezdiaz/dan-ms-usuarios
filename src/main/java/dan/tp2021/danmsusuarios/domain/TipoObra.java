@@ -8,7 +8,7 @@ import javax.persistence.Id;
 
 @Entity
 public class TipoObra {
-
+	//TODO generar endpoints para esto?
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

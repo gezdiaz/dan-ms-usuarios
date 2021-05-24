@@ -67,6 +67,9 @@ public class ObraServiceImpl implements ObraService {
 		o.getCliente().getObras().remove(o);
 		clienteServiceImpl.saveCliente(o.getCliente());
 		logger.debug("deleteObraById(): Eliminando la obra: " + o);
+		//TODO primero hay que quitarle la referencia al cliente sino tira error al borrar la obra.
+		o.getCliente().getObras().remove(o);
+//		o.setCliente(null);	
 		obraRepository.deleteById(id);
 		return o;
 	}
@@ -156,6 +159,13 @@ public class ObraServiceImpl implements ObraService {
 		logger.debug("actualizarObra(): Los ids no coinciden. id recibido: '" + id + "' id en la obra: '" + obra.getId() + "'");
 		throw new ObraForbiddenException("Los IDs deben coincidir");
 
+	}
+
+	@Override
+	public void saveTipoObra(TipoObra tipo) {
+
+		tipoObraRepository.save(tipo);
+		
 	}
 
 }

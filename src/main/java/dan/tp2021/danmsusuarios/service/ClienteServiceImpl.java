@@ -1,6 +1,7 @@
 package dan.tp2021.danmsusuarios.service;
 
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
+import dan.tp2021.danmsusuarios.dao.TipoObraRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
@@ -29,6 +30,8 @@ public class ClienteServiceImpl implements ClienteService {
 	@Autowired
 	private BancoService bancoServiceImpl;
 
+	@Autowired TipoObraRepository tipoObraRepository;
+
 	@Autowired
 	private PedidoService pedidoService;
 
@@ -38,13 +41,25 @@ public class ClienteServiceImpl implements ClienteService {
 	@Override
 	public Cliente saveCliente(Cliente cliente) throws ClienteException, TipoNoValidoException {
 		if (bancoServiceImpl.verificarRiesgo(cliente)) {
-			//clienteRepository.save(c);
-			//System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
-
-			for (Obra obra: cliente.getObras() ) {
-				//Le seteo el cliente a todas las obras para guardarlas correctamente.
+			// clienteRepository.save(c);
+			// System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
+			logger.debug("Cantidad de obras saveCleinte(): " + cliente.getObras().size());
+			for (Obra obra: cliente.getObras()) {
+				// Le seteo el cliente a todas las obras para guardarlas correctamente.
+				// TODO probar guardar la obra aca y quitar el CascadeType.Persist. Porque
+				// cuando cuandos e crea un cliente nuevo hay problemas al guardar un TipoObra
+				// nuevo.
 				obra.setCliente(cliente);
+
 				obraService.validarTipo(obra);
+
+				if(obra.getTipo().getId() == null) {
+					//Si luego de validar el tipo de obra, el mismo sigue siendo null, es porque hay que crear uno nuevo.
+					//Si no lo creamos aca, el cascade del saveCliente va a crear un nuevo tipo de obra por cada obra, con distintos IDs pero tal vez mismas descripciones,
+					//y si se repiten las descripciones falla porque deben ser unicas.
+					obraService.saveTipoObra(obra.getTipo());
+				}
+
 			}
 
 			logger.debug("saveCliente(): Guardo el cliente: " + cliente);
@@ -115,12 +130,13 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	@Override
-	public Cliente actualizarCliente(Integer id, Cliente cliente) throws ClienteException {
-		// TODO REVISAR, ver si recibimos un id o no, en los otros micorservicios no recibimos un id. Hay que ponernos de acuerdo.
+	public Cliente actualizarCliente(Integer id, Cliente cliente) throws ClienteException, TipoNoValidoException {
+		// TODO REVISAR, ver si recibimos un id o no, en los otros micorservicios no
+		//  recibimos un id. Hay que ponernos de acuerdo.
 
 		if (cliente.getId().equals(id)) {
 			if (clienteRepository.existsById(id)) {
-				return clienteRepository.save(cliente); // TODO ojo porque sobrescribe el objeto completo, los atributos vacíos/nulos quedaran vacíos/nulos en la BD
+				return this.saveCliente(cliente); // TODO ojo porque sobrescribe el objeto completo, los atributos vacíos/nulos quedaran vacíos/nulos en la BD
 			}
 			throw new ClienteNotFoundException("No se encontro cliente con id: " + id);
 		}
