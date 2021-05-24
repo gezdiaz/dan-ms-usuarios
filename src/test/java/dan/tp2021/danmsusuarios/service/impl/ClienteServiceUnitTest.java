@@ -60,7 +60,7 @@ public class ClienteServiceUnitTest {
         try {
             Cliente clienteGuardado = clienteService.saveCliente(unCliente);
             assertEquals("12345678",clienteGuardado.getCuit());
-        } catch (ClienteException e) {
+        } catch (Exception e) {
             fail("Test no cumplido");
         }
     }

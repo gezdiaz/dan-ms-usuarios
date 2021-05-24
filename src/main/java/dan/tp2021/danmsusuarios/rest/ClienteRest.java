@@ -44,8 +44,10 @@ public class ClienteRest {
 		try {
 			return ResponseEntity.ok(clienteServiceImpl.getClienteById(id));
 		} catch (dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException e) {
+			logger.warn("clientePorId(): No se encontró un cliente con id " + id);
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
+			logger.error("clientePorId(): Error al buscar el cliente con id " + id + ": " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 
@@ -71,9 +73,11 @@ public class ClienteRest {
 
 		try {
 			return ResponseEntity.ok(clienteServiceImpl.getClienteByCuit(cuit));
-		} catch (dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException e) {
-			return ResponseEntity.badRequest().build();
+		} catch (ClienteNotFoundException e) {
+			logger.warn("clientePorCuit(): No se encontró un cliente con cuit: " + cuit, e);
+			return ResponseEntity.notFound().build();
 		} catch (Exception e) {
+			logger.error("clientePorCuit(): Error al buszcar el cliente con cuit " + cuit + ": " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -90,14 +94,12 @@ public class ClienteRest {
 			} catch (ClienteNoHabilitadoException e) {
 				// El cliente no esta habilitado, retorno 400 porque es un error de los datos,
 				// no es un error del servidor.TODO ver si puede ser un 403 FORBIDDEN
-				System.out.println("Cliente no habilitado. Mensaje de la excepción: " + e.getMessage());
-				e.printStackTrace();
+				logger.warn("Cliente no habilitado. Mensaje de la excepción: " + e.getMessage(), e);
 				return ResponseEntity.badRequest().build();
-			} catch (ClienteException e) {
+			} catch (Exception e) {
 				// 500 internal server error, porque es un eror del servidor, también podría ser
 				// un 503 (Servicio no disponible) o un 502 (GBad gateway)
-				System.out.println("Error al guardar el cliente. Mensaje de la excepción: " + e.getMessage());
-				e.printStackTrace();
+				logger.error("Error al guardar el cliente. Mensaje de la excepción: " + e.getMessage(), e);
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 			}
 		}
@@ -114,12 +116,16 @@ public class ClienteRest {
 	public ResponseEntity<Cliente> actualizar(@RequestBody Cliente nuevo, @PathVariable Integer id) {
 		
 		try {
+			logger.debug("actualizar(): Se va a actualizar al cliente con id: \"" + id + "\" con los datos: " + nuevo);
 			return ResponseEntity.ok(clienteServiceImpl.actualizarCliente(id, nuevo));
 		} catch (ClienteNotFoundException e) {
-			return ResponseEntity.badRequest().build();
+			logger.warn("actualizar(): No se encontró el cliente con id " + id, e);
+			return ResponseEntity.notFound().build();
 		} catch (ClienteNoHabilitadoException e) {
+			logger.warn("actualizar(): El id recibido en el path no coincide con el recibido en el body: path " + id + " body: " + nuevo, e);
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
+			logger.error("actualizar(): Ocurrió un error al actualizar el cliente: " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 		

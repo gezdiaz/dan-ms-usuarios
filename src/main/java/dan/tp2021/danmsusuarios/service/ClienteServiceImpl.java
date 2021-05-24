@@ -7,6 +7,7 @@ import dan.tp2021.danmsusuarios.dto.PedidoDTO;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
+import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,11 @@ public class ClienteServiceImpl implements ClienteService {
 	@Autowired
 	private PedidoService pedidoService;
 
+	@Autowired
+	private ObraService obraService;
+
 	@Override
-	public Cliente saveCliente(Cliente cliente) throws ClienteException {
+	public Cliente saveCliente(Cliente cliente) throws ClienteException, TipoNoValidoException {
 		if (bancoServiceImpl.verificarRiesgo(cliente)) {
 			//clienteRepository.save(c);
 			//System.out.println(clienteRepository.findById(c.getId()).get().getRazonSocial());
@@ -40,6 +44,7 @@ public class ClienteServiceImpl implements ClienteService {
 			for (Obra obra: cliente.getObras() ) {
 				//Le seteo el cliente a todas las obras para guardarlas correctamente.
 				obra.setCliente(cliente);
+				obraService.validarTipo(obra);
 			}
 
 			logger.debug("saveCliente(): Guardo el cliente: " + cliente);

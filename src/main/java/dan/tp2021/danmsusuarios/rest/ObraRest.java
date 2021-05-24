@@ -87,11 +87,17 @@ public class ObraRest {
 		try {
 			return ResponseEntity.ok(obraServiceImpl.actualizarObra(id, nuevo));
 		} catch (ObraNotFoundException e) {
+			logger.warn("actualizar(): No se encontró la obra con id " + id, e);
 			return ResponseEntity.notFound().build();
 		} catch (ObraForbiddenException e) {
+			logger.warn("actualizar(): Los ids recibidos no coinciden. id: " + id + " obra: " + nuevo, e);
 			return ResponseEntity.badRequest().build();
+		} catch (TipoNoValidoException e){
+			logger.warn("actualizar(): El tipo de obra recibido no es válido", e);
+			return ResponseEntity.unprocessableEntity().build();
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			logger.error("actualizar(): Error al actualizar la obra: " + e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 

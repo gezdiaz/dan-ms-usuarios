@@ -14,7 +14,6 @@ import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.domain.TipoObra;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
-import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
@@ -61,9 +60,12 @@ public class ObraServiceImpl implements ObraService {
 	}
 
 	@Override
-	public Obra deleteObraById(Integer id) throws ObraNotFoundException {
+	public Obra deleteObraById(Integer id) throws ObraNotFoundException, TipoNoValidoException, ClienteException {
 
 		Obra o = getObraById(id);
+		//elimino la obra del cliente primero, para romper la relación y poder eliminar la obra, sino sa error.
+		o.getCliente().getObras().remove(o);
+		clienteServiceImpl.saveCliente(o.getCliente());
 		logger.debug("deleteObraById(): Eliminando la obra: " + o);
 		obraRepository.deleteById(id);
 		return o;
@@ -92,7 +94,8 @@ public class ObraServiceImpl implements ObraService {
 		return resultado;
 	}
 
-	private void validarTipo(Obra obra) throws TipoNoValidoException {
+	@Override
+	public void validarTipo(Obra obra) throws TipoNoValidoException {
 		TipoObra tipoRecibido = obra.getTipo();
 		boolean tipoValidado = false;
 
@@ -139,11 +142,12 @@ public class ObraServiceImpl implements ObraService {
 	}
 
 	@Override
-	public Obra actualizarObra(Integer id, Obra obra) throws ObraForbiddenException, ObraNotFoundException {
+	public Obra actualizarObra(Integer id, Obra obra) throws ObraForbiddenException, ObraNotFoundException, TipoNoValidoException {
 
 		if (obra.getId().equals(id)) {
 			if (obraRepository.existsById(id)) {
 				logger.debug("actualizarObra(): Actualizando obra: " + obra);
+				validarTipo(obra);
 				return obraRepository.save(obra); // TODO ojo porque sobrescribe el objeto completo, los atributos vacios/nulos quedaran vacios/nulos en la BD
 			}
 			logger.debug("actualizarObra(): No se encontró la obra con id: " + id);

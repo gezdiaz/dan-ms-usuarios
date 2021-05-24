@@ -3,13 +3,14 @@ package dan.tp2021.danmsusuarios.service;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
+import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 
 import java.util.List;
 
 
 public interface ClienteService {
 
-    Cliente saveCliente(Cliente c) throws ClienteException;
+    Cliente saveCliente(Cliente c) throws ClienteException, TipoNoValidoException;
     Cliente darDeBaja(Integer idCLiente) throws ClienteException;
     List<Cliente> getListaClientes();
     Cliente getClienteById(Integer id) throws ClienteNotFoundException;

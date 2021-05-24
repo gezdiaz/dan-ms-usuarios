@@ -14,7 +14,8 @@ import javax.persistence.ManyToOne;
 
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
+        property = "id",
+        scope = Obra.class)
 @Entity
 public class Obra {
 

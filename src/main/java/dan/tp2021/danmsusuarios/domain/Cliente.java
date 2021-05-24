@@ -16,7 +16,8 @@ import javax.persistence.OneToOne;
 
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
+        property = "id",
+        scope = Cliente.class)
 @Entity
 public class Cliente {
 
@@ -142,7 +143,7 @@ public class Cliente {
                 ", maxCuentaOnline=" + maxCuentaOnline +
                 ", saldoActual=" + saldoActual +
                 ", habilitadoOnline=" + habilitadoOnline +
-                ", Id obras=" + obras.stream().map(Obra::getId) +
+                ", Id obras=" + (obras != null ? obras.stream().map(Obra::getId) : "null") +
                 ", user=" + user +
                 ", fechaBaja=" + fechaBaja +
                 '}';
