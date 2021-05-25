@@ -14,7 +14,7 @@ import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 public interface ObraService {
 
 	Obra getObraById(Integer id) throws ObraNotFoundException;
-	List<Obra> getObraByParams(String tipoObra, Integer idCliente, String cuitCliente) throws ObraNotFoundException, ClienteNotFoundException;
+	List<Obra> getObraByParams(String tipoObra, Integer idCliente, String cuitCliente);
 	Obra deleteObraById(Integer id) throws ObraNotFoundException, TipoNoValidoException, ClienteException;
 	Obra saveObra(Obra obra) throws ObraForbiddenException, ClienteException, TipoNoValidoException;
 	Obra actualizarObra(Integer id, Obra obra) throws ObraException, TipoNoValidoException, ClienteException;
