@@ -13,7 +13,7 @@ import java.util.List;
 public class PedidoServiceImpl implements PedidoService {
     @Override
     public List<PedidoDTO> getPedidoByClienteId(Integer id) {
-        WebClient webClient = WebClient.create("http://localhost:9011/api/pedido?idCliente=" + id);
+        WebClient webClient = WebClient.create("http://localhost:9002/api/pedido?idCliente=" + id);
         ResponseEntity<List<PedidoDTO>> response = webClient.get().accept(MediaType.APPLICATION_JSON).retrieve()
                 .toEntityList(PedidoDTO.class).block();
         if (response != null && response.getStatusCode().equals(HttpStatus.OK)){

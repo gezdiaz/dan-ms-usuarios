@@ -1,10 +1,20 @@
 package dan.tp2021.danmsusuarios.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+@Entity
 public class Usuario {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String user;
     private String password;
+    @ManyToOne
     private TipoUsuario tipoUsuario;
 
     private static int NEXT_ID = 1;

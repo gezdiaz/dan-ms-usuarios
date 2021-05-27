@@ -1,35 +1,22 @@
 package dan.tp2021.danmsusuarios.dao;
 
-import dan.tp2021.danmsusuarios.domain.Cliente;
-import frsf.isi.dan.InMemoryRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-@Repository
-public class ClienteRepository extends InMemoryRepository<Cliente> {
-    @Override
-    public Integer getId(Cliente entity) {
-        return entity.getId();
-    }
-    @Override
-    public void setId(Cliente entity, Integer id) {
-        entity.setId(id);
-    }
+import dan.tp2021.danmsusuarios.domain.Cliente;
 
-    @Override
-    public List<Cliente> findAll(){
-        return this.findAll().stream().filter(cliente -> cliente.getFechaBaja().equals(null)).collect(Collectors.toList());
-    }
+public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
-    @Override
-    public Optional<Cliente> findById(Integer id){
-        Optional<Cliente> optionalCliente = this.findById(id);
-        if(optionalCliente.get().getFechaBaja()==null){
-            return optionalCliente;
-        }
-        return null;
-    }
+    List<Cliente> findByRazonSocial(String razonSocial);
+
+    Optional<Cliente> findByCuit(String cuit);
+
+    List<Cliente> findByFechaBajaNullOrFechaBaja(Instant fechaBaja);
+
+    Optional<Cliente> findByFechaBajaNullAndId(Integer id);
+
 }

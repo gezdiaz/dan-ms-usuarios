@@ -1,21 +1,15 @@
 package dan.tp2021.danmsusuarios.dao;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 import dan.tp2021.danmsusuarios.domain.Obra;
-import frsf.isi.dan.InMemoryRepository;
 
-@Repository
-public class ObraRepository extends InMemoryRepository<Obra> {
+public interface ObraRepository extends JpaRepository<Obra, Integer> {
 
-	@Override
-	public Integer getId(Obra entity) {
-		return entity.getId();
-	}
-
-	@Override
-	public void setId(Obra entity, Integer id) {
-		entity.setId(id);
-	}
+    @Query("SELECT o FROM Obra o WHERE (:tipoObra IS NULL OR o.tipo.descripcion like %:tipoObra%) AND (:idCliente IS NULL OR o.cliente.id = :idCliente ) AND (:cuitCliente IS NULL OR o.cliente.cuit = :cuitCliente)")
+    List<Obra> findByParams(String tipoObra, Integer idCliente, String cuitCliente);
 
 }

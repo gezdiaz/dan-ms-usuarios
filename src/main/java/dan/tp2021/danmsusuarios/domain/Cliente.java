@@ -1,18 +1,28 @@
 package dan.tp2021.danmsusuarios.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import org.apache.catalina.User;
-
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id",
+        scope = Cliente.class)
+@Entity
 public class Cliente {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String razonSocial;
     private String cuit;
@@ -22,16 +32,18 @@ public class Cliente {
     //No hace falta el habilitado, cada vez que se necesite saber la situacion el sistema se comunicaria
     //con el sistema de BCRA
     private Boolean habilitadoOnline;
-    @JsonManagedReference
-    private List<Obra> obras;
-    private Usuario user;
-    private Date fechaBaja;
 
-    public Date getFechaBaja() {
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Obra> obras;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Usuario user;
+    private Instant fechaBaja;
+
+    public Instant getFechaBaja() {
         return fechaBaja;
     }
 
-    public void setFechaBaja(Date fechaBaja) {
+    public void setFechaBaja(Instant fechaBaja) {
         this.fechaBaja = fechaBaja;
     }
 
@@ -121,35 +133,19 @@ public class Cliente {
         this.user = user;
     }
 
-    public void merge(Cliente nuevo) {
-
-        if (nuevo != null) {
-
-            if(nuevo.getCuit() != null){
-                this.setCuit(nuevo.getCuit());
-            }
-
-            if(nuevo.getRazonSocial() != null){
-                this.setRazonSocial(nuevo.getRazonSocial());
-            }
-
-            if(nuevo.getHabilitadoOnline() != null){
-                this.setHabilitadoOnline(nuevo.getHabilitadoOnline());
-            }
-
-            if(nuevo.getMail() != null){
-                this.setMail(nuevo.getMail());
-            }
-
-            if(nuevo.getObras() != null){
-                this.setObras(nuevo.getObras());
-            }
-
-            if(nuevo.getMaxCuentaOnline() != null){
-                this.setMaxCuentaOnline(nuevo.getMaxCuentaOnline());
-            }
-
-        }
-
+    @Override
+    public String toString() {
+        return "Cliente{" +
+                "id=" + id +
+                ", razonSocial='" + razonSocial + '\'' +
+                ", cuit='" + cuit + '\'' +
+                ", mail='" + mail + '\'' +
+                ", maxCuentaOnline=" + maxCuentaOnline +
+                ", saldoActual=" + saldoActual +
+                ", habilitadoOnline=" + habilitadoOnline +
+                ", Id obras=" + (obras != null ? obras.stream().map(Obra::getId) : "null") +
+                ", user=" + user +
+                ", fechaBaja=" + fechaBaja +
+                '}';
     }
 }

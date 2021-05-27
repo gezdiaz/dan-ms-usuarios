@@ -1,10 +1,10 @@
 package dan.tp2021.danmsusuarios.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,40 +16,37 @@ import dan.tp2021.danmsusuarios.exceptions.empleado.EmpleadoNotFoundException;
 @Service
 public class EmpleadoServiceImpl implements EmpleadoService {
 
+	private static final Logger logger = LoggerFactory.getLogger(EmpleadoServiceImpl.class);
+
 	@Autowired
 	EmpleadoRepository empleadoRepository;
 
 	@Override
-	public List<Empleado> getEmpleadosByParams(String nombre) throws EmpleadoNotFoundException {
-		List<Empleado> resultadoAux = getListaEmpleados();
+	public List<Empleado> getEmpleadosByParams(String nombre) {
 		if (nombre.isBlank()) {
-			if (!resultadoAux.isEmpty()) {
-				return resultadoAux;
-			}
-			throw new EmpleadoNotFoundException("No se encontraron empleados.");
+			logger.trace("getEmpleadosByParams(): No se recibió nombre, retornando lista completa.");
+			return getListaEmpleados();
 		}
-		List<Empleado> resultado = resultadoAux.stream().filter(e -> e.getNombre().contains(nombre))
-				.collect(Collectors.toList());
-		if (!resultado.isEmpty()) {
-			return resultado;
-		}
-		throw new EmpleadoNotFoundException("No se encontraron empelados que coincidan con: " + nombre);
+		List<Empleado> resultado = empleadoRepository.findByNombre(nombre);
+		logger.debug("getEmpleadosByParams() Retornando empleados con nombre: \"" + nombre + "\": " + resultado);
+		return resultado;
 	}
 
 	@Override
 	public List<Empleado> getListaEmpleados() {
-		List<Empleado> resultadoAux = new ArrayList<>();
-		empleadoRepository.findAll().forEach(e -> resultadoAux.add(e));
-		return resultadoAux;
+		List<Empleado> resultado = empleadoRepository.findAll();
+		logger.debug("getListaEmpleados(): Retornando la lista de eplemados completa: " + resultado);
+		return resultado;
 	}
 
 	@Override
 	public Empleado getEmpleadoById(Integer id) throws EmpleadoNotFoundException {
 		Optional<Empleado> e = empleadoRepository.findById(id);
 		if (e.isPresent()) {
+			logger.debug("getEmpleadoById(): Retornado el empleado: " + e.get());
 			return e.get();
 		}
-		throw new EmpleadoNotFoundException("No se encontro empleado con id: " + id);
+		throw new EmpleadoNotFoundException("No se encontró empleado con id: " + id);
 	}
 
 	@Override
@@ -57,7 +54,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 		Empleado e = getEmpleadoById(id);
 
 		empleadoRepository.delete(e);
-		
+		logger.debug("deleteEmpleadoById(): Se eliminó el empleado: " + e);
 		return e;
 	
 	}
@@ -70,13 +67,13 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 			}
 			throw new EmpleadoNotFoundException("No se encontro empleado con id: " + id);
 		}
-		
+		logger.debug("actualizarEmpleado(): El id recibido no coincide con el empleado recibido. ID: '" + id + "', empleado: " + e);
 		throw new EmpleadoForbiddenException("Los IDs deben coincidir");
 	}
 
 	@Override
 	public Empleado saveEmpleado(Empleado e) {
-		
+		logger.debug("saveEmpleado(): Se guarda el empleado: " + e);
 		return empleadoRepository.save(e);
 	
 	}

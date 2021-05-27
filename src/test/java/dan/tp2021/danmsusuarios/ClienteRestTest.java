@@ -3,11 +3,10 @@ package dan.tp2021.danmsusuarios;
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
 import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.domain.TipoObra;
 import dan.tp2021.danmsusuarios.domain.Usuario;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
-import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
-import dan.tp2021.danmsusuarios.service.BancoServiceImpl;
-import dan.tp2021.danmsusuarios.service.ClienteService;
+import dan.tp2021.danmsusuarios.service.ObraService;
 import dan.tp2021.danmsusuarios.service.PedidoService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,17 +19,15 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +46,9 @@ public class ClienteRestTest {
 	@MockBean
 	ClienteRepository clienteRepository;
 
+	@MockBean
+	ObraService obraService;
+
 	@BeforeEach
 	void setUp() {
 		unCliente = new Cliente();
@@ -61,6 +61,8 @@ public class ClienteRestTest {
 		unUsuario.setUser("Usuario de prueba 1");
 		unCliente.setUser(unUsuario);
 		Obra unaObra = new Obra();
+		unaObra.setId(1);
+		unaObra.setTipo(new TipoObra(1, "Tipo Falso"));
 		List<Obra> listaObras = new ArrayList<>();
 		listaObras.add(unaObra);
 		unCliente.setObras(listaObras);
@@ -197,7 +199,7 @@ public class ClienteRestTest {
 	void getListaClientesOK() {
 		List<Cliente> lista = new ArrayList<>();
 		lista.add(unCliente);
-		when(clienteRepository.findAll()).thenReturn(lista);
+		when(clienteRepository.findByFechaBajaNullOrFechaBaja(any(Instant.class))).thenReturn(lista);
 		String server = "http://localhost:" + puerto + "/api/cliente";
 		ResponseEntity<List> response = testRestTemplate.exchange(server, HttpMethod.GET, HttpEntity.EMPTY,
 				List.class);
@@ -209,7 +211,7 @@ public class ClienteRestTest {
 	void getListaClientesError5xx() {
 		List<Cliente> lista = new ArrayList<>();
 		lista.add(unCliente);
-		when(clienteRepository.findAll()).thenThrow(NullPointerException.class);
+		when(clienteRepository.findByFechaBajaNullOrFechaBaja(any(Instant.class))).thenThrow(NullPointerException.class);
 		String server = "http://localhost:" + puerto + "/api/cliente";
 		ResponseEntity<List> response = testRestTemplate.exchange(server, HttpMethod.GET, HttpEntity.EMPTY,
 				List.class);

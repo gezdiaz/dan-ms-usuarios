@@ -8,10 +8,10 @@ import dan.tp2021.danmsusuarios.exceptions.empleado.EmpleadoNotFoundException;
 
 public interface EmpleadoService {
 	
-	public List<Empleado> getEmpleadosByParams(String nombre) throws EmpleadoNotFoundException;
-	public List<Empleado> getListaEmpleados();
-	public Empleado getEmpleadoById(Integer id) throws EmpleadoNotFoundException;
-	public Empleado deleteEmpleadoById(Integer id) throws EmpleadoNotFoundException;
-	public Empleado actualizarEmpleado(Integer id, Empleado nuevo) throws EmpleadoNotFoundException, EmpleadoForbiddenException;
-	public Empleado saveEmpleado(Empleado e);
+	List<Empleado> getEmpleadosByParams(String nombre) throws EmpleadoNotFoundException;
+	List<Empleado> getListaEmpleados();
+	Empleado getEmpleadoById(Integer id) throws EmpleadoNotFoundException;
+	Empleado deleteEmpleadoById(Integer id) throws EmpleadoNotFoundException;
+	Empleado actualizarEmpleado(Integer id, Empleado nuevo) throws EmpleadoNotFoundException, EmpleadoForbiddenException;
+	Empleado saveEmpleado(Empleado e);
 }

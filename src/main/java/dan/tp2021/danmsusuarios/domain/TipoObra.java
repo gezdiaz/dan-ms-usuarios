@@ -1,16 +1,26 @@
 package dan.tp2021.danmsusuarios.domain;
 
-public class TipoObra {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
+@Entity
+public class TipoObra {
+	//TODO generar endpoints para esto?
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String descriocion;
+    @Column(unique = true, nullable = false) //No puede haber dos tipos de obras con la misma descripción ni sin descripción, no lo dice el enunciado pero tiene sentido
+    private String descripcion;
 
     public TipoObra() {
     }
 
-    public TipoObra(Integer id, String descriocion) {
+    public TipoObra(Integer id, String descripcion) {
         this.id = id;
-        this.descriocion = descriocion;
+        this.descripcion = descripcion;
     }
 
     public Integer getId() {
@@ -21,11 +31,19 @@ public class TipoObra {
         this.id = id;
     }
 
-    public String getDescriocion() {
-        return descriocion;
+    public String getDescripcion() {
+        return descripcion;
     }
 
-    public void setDescriocion(String descriocion) {
-        this.descriocion = descriocion;
+    public void setDescripcion(String descriocion) {
+        this.descripcion = descriocion;
+    }
+
+    @Override
+    public String toString() {
+        return "TipoObra{" +
+                "id=" + id +
+                ", descripcion='" + descripcion + '\'' +
+                '}';
     }
 }

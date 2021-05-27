@@ -3,6 +3,8 @@ package dan.tp2021.danmsusuarios.rest;
 import java.util.List;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +18,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
+import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraForbiddenException;
 import dan.tp2021.danmsusuarios.exceptions.obra.ObraNotFoundException;
+import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 import dan.tp2021.danmsusuarios.service.ObraService;
 
 @RestController
 @RequestMapping("/api/obra")
 public class ObraRest {
+
+	private static final Logger logger = LoggerFactory.getLogger(ObraRest.class);
 
 	@Autowired
 	ObraService obraServiceImpl;
@@ -34,9 +41,8 @@ public class ObraRest {
 
 		try {
 			return ResponseEntity.ok(obraServiceImpl.getObraByParams(tipoObra, idCliente, cuitCliente));
-		} catch (ObraNotFoundException e) {
-			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
+			logger.error("Error desconocido. Mensaje de error: " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -46,8 +52,10 @@ public class ObraRest {
 		try {
 			return ResponseEntity.ok(obraServiceImpl.getObraById(id));
 		} catch (ObraNotFoundException e) {
-			return ResponseEntity.badRequest().build();
+			logger.warn("obraPorId(): Obra no encontrada. Mensaje de error: " + e.getMessage(), e);
+			return ResponseEntity.notFound().build();
 		} catch (Exception e) {
+			logger.error("obraPorId(): Error desconocido. Mensaje de error: " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 
@@ -63,7 +71,14 @@ public class ObraRest {
 		// el service.
 		try {
 			return ResponseEntity.ok(obraServiceImpl.saveObra(nuevo));
+		} catch (ClienteNotFoundException e){
+			logger.warn("crear(): No se encontró el cliente para asociar con la obra: " + nuevo, e);
+			return ResponseEntity.notFound().build();
+		} catch (TipoNoValidoException e){
+			logger.warn("Se recibió un tipo de obra inválido en la obra: " + nuevo, e);
+			return ResponseEntity.unprocessableEntity().build();
 		} catch (Exception e) {
+			logger.error("crear(): Error al crear la obra: " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 
@@ -74,11 +89,21 @@ public class ObraRest {
 		try {
 			return ResponseEntity.ok(obraServiceImpl.actualizarObra(id, nuevo));
 		} catch (ObraNotFoundException e) {
-			return ResponseEntity.badRequest().build();
+			logger.warn("actualizar(): No se encontró la obra con id " + id, e);
+			return ResponseEntity.notFound().build();
 		} catch (ObraForbiddenException e) {
+			logger.warn("actualizar(): Los ids recibidos no coinciden. id: " + id + " obra: " + nuevo, e);
 			return ResponseEntity.badRequest().build();
+		} catch (TipoNoValidoException e){
+			logger.warn("actualizar(): El tipo de obra recibido no es válido", e);
+			return ResponseEntity.unprocessableEntity().build();
+		} catch (ClienteException e){
+			//Esto quiere decir que se quiso actualizar el cliente en una obra, lo cual está prohibido.
+			logger.warn("actualizar(): Se intentó actualizar el cliente en la obra con id " + id, e);
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			logger.error("actualizar(): Error al actualizar la obra: " + e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 
@@ -87,10 +112,14 @@ public class ObraRest {
 		try {
 			return ResponseEntity.ok(obraServiceImpl.deleteObraById(id));
 		} catch (ObraNotFoundException e) {
+			logger.error("Obra no encontrada. Mensaje de error: " + e.getMessage(), e);
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
+			logger.error("Error desconocido. Mensaje de error: " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
+
+	//TODO crear endpoints para manejar los tipos.
 
 }

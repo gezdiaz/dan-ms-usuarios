@@ -2,22 +2,21 @@ package dan.tp2021.danmsusuarios.service.impl;
 
 import dan.tp2021.danmsusuarios.dao.ClienteRepository;
 import dan.tp2021.danmsusuarios.domain.Cliente;
+import dan.tp2021.danmsusuarios.domain.Obra;
+import dan.tp2021.danmsusuarios.domain.TipoObra;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteException;
 import dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNoHabilitadoException;
+import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 import dan.tp2021.danmsusuarios.service.BancoService;
 import dan.tp2021.danmsusuarios.service.ClienteService;
+import dan.tp2021.danmsusuarios.service.ObraService;
 import dan.tp2021.danmsusuarios.service.PedidoService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +41,9 @@ public class ClienteServiceUnitTest {
     @MockBean
     PedidoService pedidoService;
 
+    @MockBean
+    ObraService obraService;
+
     Cliente unCliente;
 
     @BeforeEach
@@ -51,16 +53,24 @@ public class ClienteServiceUnitTest {
         unCliente.setCuit("12345678");
         unCliente.setMail("mail@mail.com");
         unCliente.setRazonSocial("Nombre");
+        //El cliente tiene que tener obras, no se pueden guardar clientes in obras.
+        List<Obra> obras = new ArrayList<>();
+        Obra o = new Obra();
+        //la obra tiene que tener un id y un tipo
+        o.setId(1);
+        o.setTipo(new TipoObra(1, "Tipo Falso"));
+        obras.add(o);
+        unCliente.setObras(obras);
     }
 
     @Test
-    void testCrearClienteRiesgoBancoBien() {
+    void testCrearClienteRiesgoBancoBien(){
         when(bancoService.verificarRiesgo(any(Cliente.class))).thenReturn(true);
         when(clienteRepository.save(any(Cliente.class))).thenReturn(unCliente);
         try {
             Cliente clienteGuardado = clienteService.saveCliente(unCliente);
             assertEquals("12345678",clienteGuardado.getCuit());
-        } catch (ClienteException e) {
+        } catch (Exception e) {
             fail("Test no cumplido");
         }
     }
@@ -103,7 +113,7 @@ public class ClienteServiceUnitTest {
 
         try {
             Cliente clienteConFechaBaja = clienteService.darDeBaja(unCliente.getId());
-            verify(clienteRepository,times(1)).delete(any(Cliente.class));
+            verify(clienteRepository,times(1)).deleteById(unCliente.getId());
             //assertNull(clienteConFechaBaja);
         }catch (Exception e){
             fail("Test no cumplido");
