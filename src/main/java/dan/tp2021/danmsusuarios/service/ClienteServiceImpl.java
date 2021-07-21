@@ -88,7 +88,9 @@ public class ClienteServiceImpl implements ClienteService {
 				}
 			} else {
 				logger.warn("darDeBaja(): Ocurrió un error al obtener los pedidos del cliente: " + optionalCliente.get());
-				throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
+				//throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
+				//TODO? CIRCUIT BREAKER - Es mejor un cliente vacio o devolvemos el cliente sin eliminarlo?
+				return optionalCliente.get();
 			}
 		}
 		logger.warn("darDeBaja(): No se encontró al cliente con id: " + idCliente);
