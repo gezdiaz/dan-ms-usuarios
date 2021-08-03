@@ -35,10 +35,11 @@ public class PedidoServiceImpl implements PedidoService {
 
 		CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
 		WebClient webClient = WebClient.create(url + "/api/pedido?idCliente=" + id);
-
+		
 		return circuitBreaker.run(() -> {
 			ResponseEntity<List<PedidoDTO>> response = webClient.get().accept(MediaType.APPLICATION_JSON).retrieve()
 					.toEntityList(PedidoDTO.class).block();
+			logger.debug("Url de pedidos: " + url + "/api/pedido?idCliente=" + id);
 			if (response != null && response.getStatusCode().equals(HttpStatus.OK)) {
 				 return response.getBody();
 			}
