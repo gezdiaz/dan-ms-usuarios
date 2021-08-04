@@ -46,7 +46,7 @@ public class ClienteRest {
 			return ResponseEntity.ok(clienteServiceImpl.getClienteById(id));
 		} catch (dan.tp2021.danmsusuarios.exceptions.cliente.ClienteNotFoundException e) {
 			logger.warn("clientePorId(): No se encontró un cliente con id " + id);
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.notFound().build();
 		} catch (Exception e) {
 			logger.error("clientePorId(): Error al buscar el cliente con id " + id + ": " + e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

@@ -13,7 +13,9 @@ import dan.tp2021.danmsusuarios.exceptions.obra.TipoNoValidoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -87,8 +89,11 @@ public class ClienteServiceImpl implements ClienteService {
 					return optionalCliente.get();
 				}
 			} else {
-				logger.warn("darDeBaja(): Ocurrió un error al obtener los pedidos del cliente: " + optionalCliente.get());
-				throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
+				//throw new ClienteException("Error al obtener los pedidos desde el microservico de pedidos");
+				//CIRCUIT BREAKER - Optamos por setear la fecha baja del cliente y loggeamos que hubo un error.
+				logger.error("darDeBaja(): Ocurrió un error al obtener los pedidos del cliente: " + optionalCliente.get());
+				optionalCliente.get().setFechaBaja(Instant.now());
+				return clienteRepository.save(optionalCliente.get());
 			}
 		}
 		logger.warn("darDeBaja(): No se encontró al cliente con id: " + idCliente);
