@@ -191,7 +191,7 @@ public class ClienteRestTest {
 		ResponseEntity<Cliente> response = testRestTemplate.exchange(server, HttpMethod.DELETE, requestCliente,
 				Cliente.class);
 		
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+		assertEquals(HttpStatus.OK, response.getStatusCode());
 
 	}
 
