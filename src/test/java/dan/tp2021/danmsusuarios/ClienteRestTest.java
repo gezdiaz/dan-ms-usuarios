@@ -6,11 +6,14 @@ import dan.tp2021.danmsusuarios.domain.Obra;
 import dan.tp2021.danmsusuarios.domain.TipoObra;
 import dan.tp2021.danmsusuarios.domain.Usuario;
 import dan.tp2021.danmsusuarios.dto.PedidoDTO;
+import dan.tp2021.danmsusuarios.service.ClienteServiceImpl;
 import dan.tp2021.danmsusuarios.service.ObraService;
 import dan.tp2021.danmsusuarios.service.PedidoService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -178,7 +181,6 @@ public class ClienteRestTest {
 	@Test
 	void darDeBajaError5xx() {
 
-		
 		String server = "http://localhost:" + puerto + "/api/cliente/1";
 		HttpEntity<Cliente> requestCliente = new HttpEntity<>(unCliente);
 
@@ -191,6 +193,7 @@ public class ClienteRestTest {
 		ResponseEntity<Cliente> response = testRestTemplate.exchange(server, HttpMethod.DELETE, requestCliente,
 				Cliente.class);
 		
+		assertNotNull(requestCliente.getBody().getFechaBaja());
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 
 	}
