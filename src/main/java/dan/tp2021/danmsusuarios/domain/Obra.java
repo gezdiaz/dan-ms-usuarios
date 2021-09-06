@@ -2,6 +2,7 @@ package dan.tp2021.danmsusuarios.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -15,10 +16,10 @@ import javax.persistence.ManyToOne;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id",
-        scope = Obra.class)
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "id",
+//        scope = Obra.class)
 @Entity
 public class Obra {
 
@@ -32,6 +33,8 @@ public class Obra {
     private Integer superficie;
     @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE}) //No hay obras sin tipo TODO ver si hacemos que se cree el tipo junto con la obra o aparte, o ambos.
     private TipoObra tipo;
+
+    @JsonIgnoreProperties({"obras"})
     @ManyToOne(optional = false, cascade = CascadeType.PERSIST) //El cliente se tiene que crear entes que las obras, no puede haber obras sin cliente
     private Cliente cliente;
 

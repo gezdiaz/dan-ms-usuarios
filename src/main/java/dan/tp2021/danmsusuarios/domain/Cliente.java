@@ -1,6 +1,7 @@
 package dan.tp2021.danmsusuarios.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.time.Instant;
@@ -14,10 +15,10 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id",
-        scope = Cliente.class)
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "id",
+//        scope = Cliente.class)
 @Entity
 public class Cliente {
 
@@ -33,6 +34,7 @@ public class Cliente {
     //con el sistema de BCRA
     private Boolean habilitadoOnline;
 
+    @JsonIgnoreProperties({"cliente"})
     @OneToMany(cascade = CascadeType.ALL)
     private List<Obra> obras;
     @OneToOne(cascade = CascadeType.ALL)
